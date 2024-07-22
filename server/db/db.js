@@ -1,10 +1,11 @@
 import mongoose from "mongoose";
 import colors from "colors";
+import dotenv from "dotenv";
+dotenv.config();
 
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URL);
-
     console.log(
       `Connected To Mongodb Database ${mongoose.connection.host}`.bgGreen.white
     );
