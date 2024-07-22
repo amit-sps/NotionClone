@@ -90,34 +90,28 @@ passport.use(
       callbackURL: "/auth/google/callback",
       scope: ["profile", "email"],
     },
-    async (accessToken, refreshToken, profile, done) => {
-      console.log("profile", profile, accessToken, refreshToken);
+    async (_accessToken, _refreshToken, profile, done) => {
       try {
-        let user = await userModel.findOne({
-          googleId: profile.id,
-        });
-        if (user) {
-          await userModel.findByIdAndUpdate(
-            user._id,
-            {
-              status: "Active",
-            },
-            { new: true }
-          );
-        }
-        if (!user) {
-          user = new userModel({
-            googleId: profile.id,
-            name: profile.given_name,
-            email: profile.emails[0].value,
-            image: profile.photos[0].value,
-            status: "Active",
-          });
+        // Extract relevant profile data
+        const { id: googleId, given_name: name, emails, photos } = profile;
+        const email = emails[0].value;
+        const image = photos[0].value;
 
-          user.save();
+        // Find or create user
+        let user = await userModel.findOneAndUpdate(
+          { email },
+          { googleId, name, image, status: "Active" },
+          { new: true, upsert: true }
+        );
+
+        // Handle error if user creation fails
+        if (!user) {
+          throw new Error("User creation failed");
         }
+
         return done(null, user);
       } catch (error) {
+        console.error("Error during authentication:", error);
         return done(error, null);
       }
     }
@@ -131,8 +125,6 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((user, done) => {
   done(null, user);
 });
-
-//inital google auth login
 
 app.get(
   "/auth/google",

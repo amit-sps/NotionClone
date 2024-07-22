@@ -8,6 +8,7 @@ import accessSchema from "../models/accessSchema.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import { validationResult } from "express-validator";
 
 export const generateAccessAndRefereshTokens = async (userId) => {
   try {
@@ -99,33 +100,18 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
 });
 
 export const registerController = async (req, res) => {
-  // console.log(req.body);
   try {
-    console.log("here....", req.body);
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.error(errors.array());
+      return res.status(422).json({
+        success: false,
+        errors: errors.array(),
+      });
+    }
+
     const { name, email, password, phone, address, role, answer } = req.body;
-    //validation
-    if (!name || !email || !password) {
-      return res.status(400).send({
-        error: "Name, email, and password are required",
-      });
-    }
-    if (!phone) {
-      return res.send({
-        error: "Phone number is required",
-      });
-    }
 
-    //check user
-    const existingUser = await userModel.findOne({ email });
-    // existing user
-    if (existingUser && existingUser.status === "Active") {
-      return res.status(200).send({
-        success: true,
-        message: "User already exists",
-      });
-    }
-
-    //register user
     const hashedPassword = await hashPassword(password);
 
     //save
@@ -143,26 +129,26 @@ export const registerController = async (req, res) => {
     //if user already invited in the teamspace then add user id in that document
 
     //update the user id in the teamspace
-    const filter = { type: "teamspace", "accessUsers.email": email };
-    const update = {
-      $set: {
-        "accessUsers.$[elem].userId": user._id,
-      },
-    };
-    const options = { arrayFilters: [{ "elem.email": email }] };
+    // const filter = { type: "teamspace", "accessUsers.email": email };
+    // const update = {
+    //   $set: {
+    //     "accessUsers.$[elem].userId": user._id,
+    //   },
+    // };
+    // const options = { arrayFilters: [{ "elem.email": email }] };
 
-    const updateDocuments = await documentsModel.updateMany(
-      filter,
-      update,
-      options
-    );
+    // const updateDocuments = await documentsModel.updateMany(
+    //   filter,
+    //   update,
+    //   options
+    // );
 
-    console.log("updateDocuments", updateDocuments);
-    // Update the user ID in the access collection
-    const accessCollection = await accessSchema.updateMany(
-      { userEmail: email },
-      { userId: user._id }
-    );
+    // console.log("updateDocuments", updateDocuments);
+    // // Update the user ID in the access collection
+    // const accessCollection = await accessSchema.updateMany(
+    //   { userEmail: email },
+    //   { userId: user._id }
+    // );
 
     res.status(200).send({
       success: true,

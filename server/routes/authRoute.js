@@ -10,22 +10,18 @@ import {
   refreshAccessToken,
 } from "../controllers/authController.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
-import upload from "../middlewares/multerMiddleware.js";
+import { registerValidation } from "../validation/auth.validation.js";
 
-// Create a router object
+
 const router = express.Router();
 
-//routing
-// Register route || METHOD: POST
-router.post("/register", registerController);
 
-// Login route || METHOD: POST
+router.post("/register", registerValidation, registerController);
+
 router.post("/login", loginController);
 
-// Login with Google route (need to be implemented in frontend as well)
 router.get("/login/success", loginControllerForGoogle);
 
-//logout the sesion
 router.post(
   "/logout",
   // requireSignIn,

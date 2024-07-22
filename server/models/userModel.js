@@ -49,6 +49,7 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
 // Create a virtual field 'details' that combines 'name', 'email', and 'phone'
 userSchema.virtual("details").get(function () {
   return `${this.name} 
@@ -57,9 +58,11 @@ userSchema.virtual("details").get(function () {
   `;
 });
 
+
 userSchema.methods.isPasswordCorrect = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
+
 
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
@@ -72,6 +75,8 @@ userSchema.methods.generateAccessToken = function () {
     }
   );
 };
+
+
 userSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
@@ -83,5 +88,7 @@ userSchema.methods.generateRefreshToken = function () {
     }
   );
 };
+
+
 
 export default mongoose.model("users", userSchema);

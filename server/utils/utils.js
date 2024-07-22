@@ -3,10 +3,17 @@ import documentsModel from "../models/documentsModel.js";
 
 export const hashPassword = async (password) => {
   try {
-    const hashedPassword = await bcrypt.hash(password, process.env.SALT_ROUNDS);
+    const saltRounds = parseInt(process.env.SALT_ROUNDS, 10);
+    if (isNaN(saltRounds)) {
+      throw new Error("Invalid salt rounds value");
+    }
+
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+
     return hashedPassword;
   } catch (error) {
-    console.log(error);
+    console.error("Error hashing password:", error);
+    throw error;
   }
 };
 

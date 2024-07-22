@@ -1,9 +1,7 @@
 import "./App.css";
-import Error from "./pages/Error";
 import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Registre from "./pages/Registre";
+import Register from "./pages/Register";
 import { AuthProvider, useAuth } from "./context/auth";
 import MarketingPage from "./pages/marketing/MarketingPage";
 import MarketingLayout from "./Layout/MarketingLayout";
@@ -19,7 +17,7 @@ import PageNotFound from "./components/PageNotFound";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "@/axiosConfig";
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect } from "react";
 
 const AppRoutes = () => {
   const [auth, setAuth] = useAuth();
@@ -65,10 +63,8 @@ const AppRoutes = () => {
       getUser();
     }
   }, []);
-  console.log("accessToken: ", token);
   return (
     <Routes>
-      {/* <Route path="/" element={<Home />} /> */}
       <Route
         path="/"
         element={
@@ -77,14 +73,10 @@ const AppRoutes = () => {
           </MarketingLayout>
         }
       />
-      {/* {token !==undefined || null && ( */}
       <Route path="/" element={<ProtectedRoutes />}>
         <Route path="/documents" element={<Documents />} />
         <Route path="/documents/:id" element={<Documents />} />
-        {/* <Route path="/documents/:id" element={<DocumentsPage />} /> */}
       </Route>
-      {/* <Route path="/dashboard" element={<Dashboard />} /> */}
-      {/* <Route path="*" element={<Error />} /> */}
       <Route path="*" element={<PageNotFound />} />
 
       {/* )} */}
@@ -93,7 +85,7 @@ const AppRoutes = () => {
         path="/reset_password/:id/:token"
         element={<ResetPassword />}
       ></Route>
-      <Route path="/register" element={<Registre />} />
+      <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
     </Routes>
   );
