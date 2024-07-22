@@ -10,7 +10,7 @@ import {
   refreshAccessToken,
 } from "../controllers/authController.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
-import { registerValidation } from "../validation/auth.validation.js";
+import { registerValidation, loginValidation } from "../validation/auth.validation.js";
 
 
 const router = express.Router();
@@ -18,7 +18,7 @@ const router = express.Router();
 
 router.post("/register", registerValidation, registerController);
 
-router.post("/login", loginController);
+router.post("/login", loginValidation,loginController);
 
 router.get("/login/success", loginControllerForGoogle);
 
