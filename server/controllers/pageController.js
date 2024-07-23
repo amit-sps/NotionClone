@@ -312,3 +312,41 @@ export const updatePageController = async (req, res) => {
     });
   }
 };
+
+
+
+export const getPage = async (req, res) => {
+  const userId = req.user.id;
+  const documentId = req.params.documentId;
+  let isArchived = false;
+  if (!userId || !documentId) {
+    return res.status(400).send({
+      success: false,
+      message: "Token or documentId not found.",
+    });
+  }
+
+  try {
+
+    const document = await documentsModel.findById(documentId).populate("page");
+
+    if (!document) {
+      return res.status(404).send({
+        success: false,
+        message: "Document not found.",
+      });
+    }
+
+    return res.status(200).send({
+      success: true,
+      message: "Page fetched successfully.",
+      data: { ...document.toObject(), isArchived },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send({
+      success: false,
+      message: "An error occurred while fetching the page.",
+    });
+  }
+};

@@ -9,6 +9,9 @@ import { Button } from "@/components/ui/button";
 import { IconPicker } from "./icon-picker";
 import UseDocuments from "@/pages/main/useDocuments";
 import { useAuth } from "@/context/auth";
+import { useDispatch } from "react-redux";
+import { getPrivatePages } from "@/redux/action/privatePage";
+import { getTeamSpaces } from "@/redux/action/teamspace";
 
 export const Toolbar = ({ initialData, preview }) => {
   const inputRef = useRef(null);
@@ -20,6 +23,7 @@ export const Toolbar = ({ initialData, preview }) => {
   // const update = useMutation(api.documents.update);
   // const removeIcon = useMutation(api.documents.removeIcon);
   const [{ user }, setAuth, socket] = useAuth();
+  const dispatch = useDispatch();
 
   const coverImage = useCoverImage();
 
@@ -84,9 +88,14 @@ export const Toolbar = ({ initialData, preview }) => {
     socket.current.on("getDoc", (data) => {
       console.log("socket getDoc", data.title);
       setValue(data?.title);
+      dispatch(getPrivatePages());
+      dispatch(getTeamSpaces())
     });
     socket.current.on("getIcon", (data) => {
       console.log("socket getIcon", data.icon);
+      dispatch(getPrivatePages());
+      dispatch(getTeamSpaces())
+
       setIcon(data?.icon);
     });
   }, []);

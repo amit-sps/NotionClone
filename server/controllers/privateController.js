@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import accessSchema from "../models/accessSchema.js";
 import documentsModel from "../models/documentsModel.js";
 
@@ -108,15 +109,37 @@ export const getPrivateDocumentsController = async (req, res) => {
   try {
     const adminId = req.user.id;
 
+    // Step 1: Get all private documents
     const privateDocuments = await documentsModel.find({
       adminId,
       isPrivate: true,
       isArchived: false,
     });
 
+    // Step 2: Create a map for easy access to documents by ID
+    const documentMap = new Map();
+    privateDocuments.forEach((doc) =>
+      documentMap.set(doc._id.toString(), { ...doc.toObject(), children: [] })
+    );
+
+    // Step 3: Organize documents into a hierarchical structure
+    const categorizedDocuments = [];
+    privateDocuments.forEach((doc) => {
+      if (doc.parentDocument) {
+        const parentId = doc.parentDocument.toString();
+        if (documentMap.has(parentId)) {
+          documentMap
+            .get(parentId)
+            .children.push(documentMap.get(doc._id.toString()));
+        }
+      } else {
+        categorizedDocuments.push(documentMap.get(doc._id.toString()));
+      }
+    });
+
     res.status(200).send({
       success: true,
-      data: privateDocuments,
+      data: categorizedDocuments,
     });
   } catch (error) {
     console.error("Error:", error);

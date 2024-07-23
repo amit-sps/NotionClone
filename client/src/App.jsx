@@ -18,6 +18,7 @@ import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import axios from "@/axiosConfig";
 import { useEffect } from "react";
+import DashboardLayout from "./Layout/DashboardLayout";
 
 const AppRoutes = () => {
   const [auth, setAuth] = useAuth();
@@ -73,13 +74,11 @@ const AppRoutes = () => {
           </MarketingLayout>
         }
       />
-      <Route path="/" element={<ProtectedRoutes />}>
-        <Route path="/documents" element={<Documents />} />
+      <Route path="/documents" element={<DashboardLayout />}>
+        <Route index element={<Documents />} />
         <Route path="/documents/:id" element={<Documents />} />
       </Route>
       <Route path="*" element={<PageNotFound />} />
-
-      {/* )} */}
       <Route path="/forgot-password" element={<ForgotPassword />}></Route>
       <Route
         path="/reset_password/:id/:token"

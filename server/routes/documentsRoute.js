@@ -18,7 +18,7 @@ import { requireSignIn } from "../middlewares/authMiddleware.js";
 const router = express.Router();
 
 //Documents routes
-router.post("/create", createDocumentController);
+router.post("/create", requireSignIn, createDocumentController);
 // get dcuments routes
 router.get(
   "/getDocuments/:parentDocument",

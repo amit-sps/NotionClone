@@ -5,15 +5,13 @@ import mongoose from "mongoose";
 
 export const createDocumentController = async (req, res) => {
   try {
-    const {
-      title,
-      adminId,
-      isArchived,
-      parentDocument,
-      content,
-      Icon,
-      teamspaceId,
-    } = req.body;
+    const adminId = req?.user?.id;
+    const content = req?.body?.content || "";
+    const parentDocument = req?.body?.parentDocument;
+    const isArchived = req?.body?.isArchived || false;
+    const Icon = req?.body?.Icon;
+    const teamspaceId = req?.body?.teamspaceId;
+    const title = req?.body?.title || "Untitled";
 
     if (!title || !adminId) {
       return res.status(400).json({
@@ -31,6 +29,7 @@ export const createDocumentController = async (req, res) => {
       Icon,
       type: "document",
       teamspaceId,
+      isPrivate: teamspaceId ? false : true,
     });
     const page = new pageModel({
       document: document._id,

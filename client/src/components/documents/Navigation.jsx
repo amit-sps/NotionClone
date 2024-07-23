@@ -10,10 +10,11 @@ import {
   Settings,
   Trash,
   MoreHorizontal,
+  Home,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@uidotdev/usehooks";
-import { useLocation, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import UserItem from "./UserItem";
 import axios from "axios";
 import { Button } from "../ui/button";
@@ -27,6 +28,10 @@ import { Popover, PopoverContent, PopoverTrigger } from "../ui/popover";
 import TrashBox from "./TrashBox";
 import PopoverBox from "./TrashBox";
 import { Navbar } from "./Navbar";
+import NewDocumentList from "../NewDocumentList";
+import { useDispatch, useSelector } from "react-redux";
+import { getTeamSpaces } from "@/redux/action/teamspace";
+import { getPrivatePages } from "@/redux/action/privatePage";
 const Navigation = ({ user }) => {
   const { pathname } = useLocation();
   const {
@@ -49,6 +54,16 @@ const Navigation = ({ user }) => {
   const [isResetting, setIsResetting] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(isMobile);
   const [updateDocument, setUpdateDocument] = useState({});
+  const navigate = useNavigate();
+  const [privateDocument, setPrivateDocument] = useState([]);
+  const dispatch = useDispatch();
+  const { privatePages } = useSelector((state) => state.PrivatePageReducer);
+
+  
+  useEffect(() => {
+    dispatch(getPrivatePages());
+    dispatch(getTeamSpaces());
+  }, []);
 
   useEffect(() => {
     if (isMobile) {
@@ -133,25 +148,52 @@ const Navigation = ({ user }) => {
       [documentId]: !prevExpanded[documentId],
     }));
   };
-  const onCreate = (event) => {
-    event.stopPropagation();
-    // console.log("onCreate");
-    if (!user?._id) return;
-    let data = {
-      title: "Teamspace" + teamspaceList?.length,
-      adminId: user._id,
-      description: "",
-    };
-    const promise = createTeamspaceMutation(data);
+
+  const onCreate = async (event) => {
+    try {
+      event.stopPropagation();
+      // console.log("onCreate");
+      console.log(user);
+      if (!user?._id) return;
+      let data = {
+        title: "Teamspace" + teamSpaces?.length,
+        adminId: user._id,
+        description: "",
+      };
+      const token = localStorage.getItem("accessToken");
+      await axios.post("http://localhost:3851/api/v1/teamspace", data, {
+        headers: { Authorization: token },
+      });
+
+      dispatch(getTeamSpaces());
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const createDocument = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    await axios.post(
+      "http://localhost:3851/api/v1/document/create",
+      { title: `Untitled${privatePages?.length}` },
+      {
+        headers: { Authorization: token },
+      }
+    );
+    dispatch(getPrivatePages());
   };
 
   const { id: documentId } = useParams();
+
+  const { teamSpaces } = useSelector((state) => state.TeamSpaceReducer);
+
   return (
     <>
       <aside
         ref={sidebarRef}
         className={cn(
-          "group/sidebar  bg-secondary overflow-y-auto relative flex w-60 flex-col z-[99999]",
+          "group/sidebar  bg-secondary overflow-y-auto relative flex min:w-60 flex-col z-[99999]",
           isResetting && "transition-all ease-in-out duration-300",
           isMobile && "w-0"
         )}
@@ -170,11 +212,17 @@ const Navigation = ({ user }) => {
           <UserItem />
           <Item
             label="Search"
-            // isSearch
             Icon={
               <Search className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
             }
             onClick={search.onOpen}
+          />
+          <Item
+            label="Home"
+            Icon={
+              <Home className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
+            }
+            onClick={() => navigate("/documents")}
           />
           <Item
             label="Settings"
@@ -184,7 +232,7 @@ const Navigation = ({ user }) => {
             onClick={settings.onOpen}
           />
           <Item
-            onClick={createMutation}
+            onClick={createDocument}
             label="New page"
             Icon={
               <PlusCircle className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
@@ -264,9 +312,9 @@ const Navigation = ({ user }) => {
           </div>
         </div>
         <div className="max-h-[500px] overflow-hidden hover:overflow-y-scroll hover:border-b">
-          {teamspaceList?.length >= 1 ? (
+          {teamSpaces?.length >= 1 ? (
             <>
-              {teamspaceList?.map((teamspace) => {
+              {teamSpaces?.map((teamspace) => {
                 return (
                   <>
                     <div className="mt-2">
@@ -300,7 +348,7 @@ const Navigation = ({ user }) => {
               }}
               className={cn(
                 "hidden text-sm font-medium text-muted-foreground/80",
-                !teamspaceList?.length && "block"
+                !teamSpaces?.length && "block"
               )}
             >
               No pages inside
@@ -320,35 +368,42 @@ const Navigation = ({ user }) => {
           </div>
         </div>
         {/* <DocumentList /> */}
-        {/* {documents?.length !== 0 &&
-          documents?.map((doc) => {
-            return (
-              <div className="mt-4 flex justify-between" key={doc?.id}>
-                {isEdit && updateDocument._id == doc._id ? (
-                  <input
-                    type="text"
-                    value={updateDocument.title}
-                    onChange={handleUpdateChange}
-                    onBlur={() => {
-                      console.log("updateDocument", updateDocument);
-                      updateMutation(updateDocument);
-                      setEdit(false);
-                    }}
-                  />
-                ) : (
+        <div className="max-h-[500px] overflow-hidden hover:overflow-y-scroll hover:border-b">
+          {/* {privateDocument?.length >= 1 ? (
+            <>
+              {privateDocument?.map((teamspace) => {
+                return (
                   <>
-                    <Item
-                      doc={doc}
-                      setEdit={setEdit}
-                      setUpdateDocument={setUpdateDocument}
-                      id={doc._id}
-                      documentIcon={doc?.icon}
-                    />
+                    <div className="mt-2">
+                     <DocumentList
+                          parentDocumentId={teamspace._id}
+                          level={1}
+                          teamspaceId={teamspace._id}
+                        />
+
+                        <NewDocumentList/>
+                     
+                    </div>
                   </>
-                )}
-              </div>
-            );
-          })} */}
+                );
+              })}
+            </>
+          ) : (
+            <p
+              style={{
+                paddingLeft: `12px`,
+              }}
+              className={cn(
+                "hidden text-sm font-medium text-muted-foreground/80",
+                !teamSpaces?.length && "block"
+              )}
+            >
+              No pages inside
+            </p>
+          )} */}
+
+          <NewDocumentList />
+        </div>
 
         <Popover>
           <PopoverTrigger className="w-full mt-4">
@@ -374,7 +429,6 @@ const Navigation = ({ user }) => {
         />
       </aside>
       <div
-      
         ref={navbarRef}
         className={cn(
           "absolute top-0 z-[99999] left-60 w-[calc(100%-240px)]",

@@ -97,3 +97,38 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+/* TreeComponent.css */
+.tree-container {
+  font-family: sans-serif;
+  color: #ffffff;
+}
+
+.tree-node {
+  margin: 4px 0;
+}
+
+.tree-icon {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-left: 1px solid #ffffff;
+  border-bottom: 1px solid #ffffff;
+  margin-right: 8px;
+  transition: transform 0.3s ease;
+}
+
+.tree-icon.expanded {
+  transform: rotate(45deg);
+}
+
+.tree-icon.collapsed {
+  transform: rotate(-90deg);
+}
+
+.tree-title {
+  flex: 1;
+  margin-right: 8px;
+  cursor: pointer;
+}

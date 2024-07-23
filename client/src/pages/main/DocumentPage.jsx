@@ -24,10 +24,16 @@ const DocumentIdPage = ({ documentId, page: document }) => {
   //   const update = useMutation(api.documents.update);
   const { updatePageContentMutation, pageContent } = UseDocuments();
   const [incomingContent, setIncomingContent] = useState(pageContent?.content);
-  console.log("documentdocument", document, pageContent);
+  console.log("incomingContent", incomingContent, pageContent?.content);
+
+  useEffect(()=>{
+    setIncomingContent(pageContent?.content)
+  }, [pageContent])
+
   const onChange = (content) => {
     setContent(content);
   };
+
   useEffect(() => {
     if (content) {
       //Update the page content in DB
@@ -36,6 +42,7 @@ const DocumentIdPage = ({ documentId, page: document }) => {
           id: pageContent._id,
           content,
         });
+        
         socket.current.emit("editPage", {
           ...document,
           content: content,

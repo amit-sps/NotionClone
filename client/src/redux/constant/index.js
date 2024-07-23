@@ -1,0 +1,3 @@
+export const SET_PRIVATE_PAGE = "SET_PRIVATE_PAGE"
+
+export const SET_TEAM_SPACE = "SET_TEAM_SPACE"

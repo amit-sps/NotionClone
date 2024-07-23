@@ -1,4 +1,3 @@
-import Navigation from "@/components/documents/Navigation";
 import { Button } from "@/components/ui/button";
 import { PlusCircle } from "lucide-react";
 import empty from "@/assets/empty.png";
@@ -8,13 +7,10 @@ import UseDocuments from "./useDocuments";
 import SearchCommand from "@/components/documents/SearchCommand";
 import { ModalProvider } from "@/context/modal-provider";
 import { useParams } from "react-router-dom";
-import useSWR from "swr";
-import { getDocument } from "@/Api/documents";
-import SettingModal from "@/components/documents/settings/teamspace-setting-modal";
-import { SettingsModal } from "@/components/documents/SettingModal";
 import DocumentIdPage from "./DocumentPage";
 import PageNotFound from "@/components/PageNotFound";
 import { useEffect } from "react";
+
 const Documents = () => {
   const {
     documents,
@@ -22,12 +18,12 @@ const Documents = () => {
     page,
     isLoadingPage: isLoading,
   } = UseDocuments();
+
   const [{ user }, setAuth, socket] = useAuth();
   const { id } = useParams();
 
   //socket
   useEffect(() => {
-    console.log(page, socket.current);
     // sending the page to the server for starting the realtime updation
     socket.current?.emit("addPage", { ...page, userId: user._id });
   }, [page?._id]);
@@ -35,7 +31,6 @@ const Documents = () => {
   return (
     <>
       <div className="min-h-full flex dark:bg-[#1F1F1F] ">
-        <Navigation user={user} />
         <main className="flex-1 overflow-y-auto">
           <SearchCommand />
           <ModalProvider id={id} />
@@ -73,7 +68,7 @@ const Documents = () => {
                 }
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
-                Create a note
+                Create a Page
               </Button>
             </div>
           )}

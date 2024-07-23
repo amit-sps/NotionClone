@@ -122,14 +122,14 @@ const Login = () => {
           </Form.Item>
         </Form>
 
-        <Button
+        {/* <Button
           type="default"
           icon={<GoogleOutlined />}
           className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 rounded-md transition-colors duration-200"
           onClick={loginWithGoogle}
         >
           Sign In with Google
-        </Button>
+        </Button> */}
 
         <div className="text-center mt-4">
           <Text className="text-white">

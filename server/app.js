@@ -130,7 +130,9 @@ app.get(
   "/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
+
 app.post("/update", updateDocument);
+
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
@@ -139,7 +141,7 @@ app.get(
   })
 );
 
-//routes
+
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/page", pageRoute);
 app.use("/api/v1/document", documentsRoute);
@@ -240,6 +242,7 @@ io.on("connection", (socket) => {
     console.log("document title", data);
     addTitle(data, socket.id);
   });
+  
   socket.on("editTitle", (data) => {
     const page = getPage(data._id);
     if (page) {
