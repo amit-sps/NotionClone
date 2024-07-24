@@ -34,6 +34,8 @@ import { useState } from "react";
 // } from "@/hooks/Documents";
 // import { path } from "@/Api/newtorkPaths";
 import { useParams } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { getPrivatePages } from "@/redux/action/privatePage";
 const UseDocuments = () => {
   const [isEdit, setEdit] = useState(false);
   const [{ user }] = useAuth();
@@ -41,6 +43,7 @@ const UseDocuments = () => {
   const [revalidateTime, setRevalidateTime] = useState(0);
   const [revalidatePage, setRevalidatePage] = useState(0);
   const [expanded, setExpanded] = useState({});
+  const dispatch = useDispatch();
   const { id } = useParams();
   const onExpand = (documentId) => {
     setExpanded((prevExpanded) => ({
@@ -230,6 +233,7 @@ const UseDocuments = () => {
   const createMutation = async (data) => {
     try {
       await mutateDocumets(createDocument(data), createDocumentOptions(data));
+      dispatch(getPrivatePages())
     } catch (error) {
       console.log(error);
     }
