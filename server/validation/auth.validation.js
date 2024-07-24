@@ -1,4 +1,4 @@
-import { body } from "express-validator";
+import { body , check} from "express-validator";
 import userModel from "../models/userModel.js";
 
 export const registerValidation = [
@@ -25,4 +25,16 @@ export const registerValidation = [
       }
       return true;
     }),
+];
+
+export const loginValidation = [
+  check('email')
+    .isEmail()
+    .withMessage('Please add a valid email.')
+    .notEmpty()
+    .withMessage('Please add an email.'),
+  check('password')
+    .optional()
+    .isString()
+    .withMessage('Password must be a string.'),
 ];

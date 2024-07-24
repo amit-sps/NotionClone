@@ -6,22 +6,14 @@ import session from "express-session";
 import passport from "passport";
 import Oauth2 from "passport-google-oauth2";
 import userModel from "./models/userModel.js";
-import authRoutes from "./routes/authRoute.js";
-import documentsRoute from "./routes/documentsRoute.js";
-import usersRoute from "./routes/usersRoute.js";
-import teamspaceRoute from "./routes/teamspaceRoute.js";
-import favoriteRoute from "./routes/favoritesRoute.js";
-import privateRoute from "./routes/privateRoute.js";
-import trashRoute from "./routes/trashRoute.js";
-import pageRoute from "./routes/pageRoute.js";
-import settingsRoute from "./routes/settingsRoute.js";
-import openAiRoute from "./routes/openAiRoute.js";
 import morgan from "morgan";
 import { updateDocument } from "./controllers/documentController.js";
 import { Server } from "socket.io";
 import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import compression from "compression";
+import approute from "./routes/index.js";
+
 const app = express();
 
 //create server instance for socket
@@ -141,17 +133,8 @@ app.get(
   })
 );
 
-
-app.use("/api/v1/auth", authRoutes);
-app.use("/api/v1/page", pageRoute);
-app.use("/api/v1/document", documentsRoute);
-app.use("/api/v1/teamspace", teamspaceRoute);
-app.use("/api/v1/favorite", favoriteRoute);
-app.use("/api/v1/private", privateRoute);
-app.use("/api/v1/user", usersRoute);
-app.use("/api/v1/trash", trashRoute);
-app.use("/api/v1/settings", settingsRoute);
-app.use("/api/v1/ai", openAiRoute);
+//routes
+app.use("/api/v1", approute);
 
 app.get("/logout", (req, res, next) => {
   req.logout(function (err) {
