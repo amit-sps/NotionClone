@@ -1553,3 +1553,59 @@ export const leaveTeamspaceController = async (req, res) => {
     });
   }
 };
+
+
+export const teamInvite = async (req,res) =>{
+  try{
+    const { teamspaceId } = req.params;
+    if (!docId) {
+      return res.status(404).send({
+        success: false,
+        message: "Teamspace id is required.",
+      });
+    }
+    const user = await userModel.findOne({email:req.body.email});
+
+    const sender = await userModel.findById(req.user.id)
+
+    let accessGiven =  await accessModel.findOne({
+      adminId: req.user.id,
+      userEmail: req.body.email,
+      "teamspaces.teamspaceId": teamspaceId,
+    });
+    if(accessGiven){
+      accessModel.updateOne({adminId: req.user.id,
+      userEmail: req.body.email},{
+        $push : { teamspaces: { teamspaceId: teamspaceId } }
+      })
+    }else{
+      const newAccess = new accessModel({
+        userId: user?._id,
+        adminId: req.user.id,
+        userEmail: req.body.email,
+        teamspaces: [{ teamspaceId: teamspaceId, access }],
+      });
+      await newAccess.save();
+    }
+
+    const templateData = {
+      userName: user.name,
+      workspaceName: `${sender?.email}'s workspace`,
+      addedBy: sender.name,
+      loginUrl: 'https://yourapp.com/login'
+    };
+    await sendEmail(req.body.email, 'workspaceinvite', templateData);
+
+    res.status(200).send({
+      success: true,
+      message: "Teamspace invite sent successfully."
+    });
+    
+  }catch(err){
+    res.status(500).send({
+      message: "An error occurred while sending the teamspace invite",
+      success: false,
+    });
+  }
+}
+

@@ -22,6 +22,8 @@ const accessSchema = new mongoose.Schema(
         },
         access: {
           type: String,
+          enum: ["readonly","editor"],
+          default: "readonly"
         },
         isGuest: {
           type: Boolean,
