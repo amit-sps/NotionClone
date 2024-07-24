@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getPrivatePages } from "@/redux/action/privatePage";
 import NotionLogo from "./documents/NotionLogo";
+import { path } from "@/Api/newtorkPaths";
 
 const TreeNode = ({
   title,
@@ -47,7 +48,9 @@ const TreeNode = ({
         <div className="flex-grow flex items-center justify-between">
           <p className="text-6xl hover:opacity-75 transition">
             <div className="shrink-0 mr-2 text-[10px]">
-              <NotionLogo letter={icon?.length?icon: title[0].toUpperCase()}/>
+              <NotionLogo
+                letter={icon?.length ? icon : title[0].toUpperCase()}
+              />
               {/* <span className="text-lg">{icon}</span> */}
             </div>
           </p>
@@ -98,8 +101,15 @@ const TreeComponent = () => {
     navigate(`/documents/${key}`);
   };
 
-  const handleIconClick = (key) => {
-    console.log(`Node key: ${key}`);
+  const handleIconClick = async (key) => {
+    const token = localStorage.getItem("accessToken");
+
+    await axios.post(
+      path.createDocument,
+      { title: `Untitled${privatePages?.length}`, parentDocument: key },
+      { headers: { Authorization: token } }
+    );
+    dispatch(getPrivatePages());
   };
 
   const renderTreeNodes = (nodes) => {

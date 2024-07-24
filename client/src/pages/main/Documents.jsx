@@ -10,6 +10,10 @@ import { useParams } from "react-router-dom";
 import DocumentIdPage from "./DocumentPage";
 import PageNotFound from "@/components/PageNotFound";
 import { useEffect } from "react";
+import { path } from "@/Api/newtorkPaths";
+import { useDispatch, useSelector } from "react-redux";
+import { getPrivatePages } from "@/redux/action/privatePage";
+import axios from "axios";
 
 const Documents = () => {
   const {
@@ -18,6 +22,19 @@ const Documents = () => {
     page,
     isLoadingPage: isLoading,
   } = UseDocuments();
+  const dispatch = useDispatch();
+  const { privatePages } = useSelector((state) => state.PrivatePageReducer);
+
+  const createDocument = async () => {
+    const token = localStorage.getItem("accessToken");
+
+    await axios.post(
+      path.createDocument,
+      { title: `Untitled${privatePages?.length}` },
+      { headers: { Authorization: token } }
+    );
+    dispatch(getPrivatePages());
+  };
 
   const [{ user }, setAuth, socket] = useAuth();
   const { id } = useParams();
@@ -60,12 +77,7 @@ const Documents = () => {
                 Welcome to {user?.name}&apos;s Notion
               </h2>
               <Button
-                onClick={() =>
-                  createMutation({
-                    title: `document`,
-                    adminId: user?._id,
-                  })
-                }
+                onClick={createDocument}
               >
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create a Page
