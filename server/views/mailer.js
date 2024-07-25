@@ -1,7 +1,7 @@
-const nodemailer = require('nodemailer');
-const ejs = require('ejs');
-const path = require('path');
-const fs = require('fs');
+import nodemailer from "nodemailer";
+import ejs from "ejs";
+import path from "path";
+import fs from "fs";
 
 const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -28,5 +28,4 @@ const sendEmail = async (to, templateName, templateData) => {
 
   await transporter.sendMail(mailOptions);
 };
-
-module.exports = sendEmail;
+export default sendEmail;

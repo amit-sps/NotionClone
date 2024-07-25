@@ -78,5 +78,4 @@ router.put(
   requireSignIn,
   teamInvite
 );
-
 export default router;
