@@ -6,18 +6,20 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const requireSignIn = async (req, res, next) => {
   try {
-    const token = req.header("Authorization") || req.cookies?.accessToken;
-    // console.log(token);
+    const token = req.headers.authorization.split(' ')[1] || req.cookies?.accessToken;
+     //console.log(token);
     if (!token) {
+     // console.log("in")
       throw new ApiError(401, "Unauthorized request or invalid token.");
     }
     const decode = JWT.verify(token, process.env.ACCESS_TOKEN_SECRET);
-    // console.log("useruser decode 1", decode, req.cookies?.accessToken);
+     //console.log("useruser decode 1", decode, req.cookies?.accessToken);
     req.user = decode;
 
+    //console.log('Calling next()');
     next();
   } catch (error) {
-    // console.log("requireSignIn error : ", error);
+     //console.log("requireSignIn error : ", error);
     res
       .status(401)
       .send({ success: false, message: "Token Expired", error: error });

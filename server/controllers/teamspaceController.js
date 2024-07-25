@@ -4,6 +4,7 @@ import userModel from "../models/userModel.js";
 import cloudinary from "../utils/cloudinary.js";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
+import sendEmail from "../views/mailer.js"
 export const createTeamspaceController = async (req, res) => {
   try {
     const { title, adminId, description } = req.body;
