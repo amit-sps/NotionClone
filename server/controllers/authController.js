@@ -18,7 +18,6 @@ export const generateAccessAndRefereshTokens = async (userId) => {
 
     user.refreshToken = refreshToken;
     await user.save({ validateBeforeSave: false });
-
     return { accessToken, refreshToken };
   } catch (error) {
     throw new ApiError(
@@ -195,7 +194,8 @@ export const loginController = async (req, res) => {
 
     //
     const { accessToken, refreshToken } = await generateAccessAndRefereshTokens(
-      user._id
+      user._id,
+      process.env.ACCESS_TOKEN_SECRET
     );
     // user.refreshToken = refreshToken;
     // user.save();
