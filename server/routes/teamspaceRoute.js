@@ -74,7 +74,7 @@ router.post("/update-access/:docId", requireSignIn, updateAccessController);
 
 //update documents routes
 router.put(
-  "teamspace-invite/:teamspaceId",
+  "/teamspace-invite/:teamspaceId",
   requireSignIn,
   teamInvite
 );

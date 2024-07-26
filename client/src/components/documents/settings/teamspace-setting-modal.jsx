@@ -5,21 +5,37 @@ import { Input, Button, Avatar } from "antd";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import General from "./General";
+import axios from "axios";
+import { path } from "@/Api/newtorkPaths";
+import { toast } from "react-toastify";
 
 const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [email, setEmail] = useState("");
   const [members, setMembers] = useState([
-    { email: "john@example.com", name: "John Doe", profilePicture: "https://example.com/john.jpg" },
-    { email: "jane@example.com", name: "Jane Smith", profilePicture: "https://example.com/jane.jpg" },
+    {
+      email: "john@example.com",
+      name: "John Doe",
+      profilePicture: "https://example.com/john.jpg",
+    },
+    {
+      email: "jane@example.com",
+      name: "Jane Smith",
+      profilePicture: "https://example.com/jane.jpg",
+    },
     // Add more members as needed
   ]);
 
-  const handleInvite = () => {
-    // Logic to send the invite
-    console.log("Invite sent to:", email);
+  const handleInvite = async () => {
+    const token = localStorage.getItem("accessToken");
+    await axios.put(
+      `${path.sendTeamSpaceInvite}/${doc._id}`,
+      { email },
+      { headers: { Authorization: token } }
+    );
     setInviteModalOpen(false);
     setEmail("");
+    toast.success("Invite sent on the user's email.");
   };
 
   return (
@@ -32,7 +48,9 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
           <div className="flex h-full w-full py-3 px-4">
             <div className="flex flex-col gap-2 dark:bg-[#202020] bg-white px-4 pb-4 rounded-lg w-full">
               <span className="text-lg text-black mt-2 flex items-start justify-start">
-                <div className="flex shrink-0 mr-2 text-[18px]">{doc?.icon}</div>
+                <div className="flex shrink-0 mr-2 text-[18px]">
+                  {doc?.icon}
+                </div>
                 <span className="capitalize dark:text-muted-foreground font-semibold">
                   {doc?.title}
                 </span>
@@ -49,7 +67,10 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                 </TabsContent>
                 <TabsContent value="Members">
                   <div className="flex justify-end mb-4">
-                    <Button type="primary" onClick={() => setInviteModalOpen(true)}>
+                    <Button
+                      type="primary"
+                      onClick={() => setInviteModalOpen(true)}
+                    >
                       Invite Member
                     </Button>
                   </div>
@@ -65,9 +86,14 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                     ))}
                   </div>
                   {inviteModalOpen && (
-                    <Dialog open={inviteModalOpen} onOpenChange={setInviteModalOpen}>
+                    <Dialog
+                      open={inviteModalOpen}
+                      onOpenChange={setInviteModalOpen}
+                    >
                       <DialogContent>
-                        <h3 className="text-lg font-semibold mb-4">Invite Member</h3>
+                        <h3 className="text-lg font-semibold mb-4">
+                          Invite Member
+                        </h3>
                         <Input
                           placeholder="Enter email"
                           value={email}
