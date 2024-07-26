@@ -225,6 +225,8 @@ const UseDocuments = () => {
     try {
       await mutateTrashList(removeTrashDocument(id), deleteDocumentOptions(id));
       setRevalidateTime(1000);
+      dispatch(getPrivatePages())
+
     } catch (error) {
       console.log(error);
     }

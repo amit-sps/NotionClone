@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { PlusOutlined } from "@ant-design/icons";
+import { PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { getPrivatePages } from "@/redux/action/privatePage";
@@ -18,6 +18,7 @@ const TreeNode = ({
 }) => {
   const [expanded, setExpanded] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleNodeClick = () => {
     setExpanded(!expanded);
@@ -26,6 +27,21 @@ const TreeNode = ({
   const handleTitleClick = () => {
     onSelect(keys);
     navigate(`/documents/${keys}`);
+  };
+
+  const trashDocument = async (keys) => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      await axios.post(
+        `${path.addArchive}/${keys}`,
+        {},
+        { headers: { Authorization: token } }
+      );
+      dispatch(getPrivatePages());
+    } catch (error) {
+      return;
+    }
   };
 
   return (
@@ -57,8 +73,15 @@ const TreeNode = ({
           <span className="tree-title" onClick={handleTitleClick}>
             {title}
           </span>
+          <DeleteOutlined
+            className="ml-0.5 group-hover:text-red-600 opacity-0 group-hover:opacity-100"
+            onClick={(e) => {
+              e.stopPropagation();
+              trashDocument(keys);
+            }}
+          />
           <PlusOutlined
-            className="ml-2 opacity-0 group-hover:opacity-100"
+            className="ml-0.5 group-hover:text-green-600 opacity-0 group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation();
               onIconClick(keys);
