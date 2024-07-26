@@ -14,6 +14,7 @@ import {
   listOfGuestsController,
   updateAccessController,
   getSingleTeamspaceWithMembersController,
+  teamInvite
 } from "../controllers/teamspaceController.js";
 import upload from "../middlewares/multerMiddleware.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
@@ -71,4 +72,10 @@ router.get("/guests-list", requireSignIn, listOfGuestsController);
 //update guest access
 router.post("/update-access/:docId", requireSignIn, updateAccessController);
 
+//update documents routes
+router.put(
+  "teamspace-invite/:teamspaceId",
+  requireSignIn,
+  teamInvite
+);
 export default router;
