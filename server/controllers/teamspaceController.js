@@ -4,7 +4,7 @@ import userModel from "../models/userModel.js";
 import cloudinary from "../utils/cloudinary.js";
 import nodemailer from "nodemailer";
 import mongoose from "mongoose";
-import sendEmail from "../views/mailer.js"
+import sendEmail from "../views/mailer.js";
 export const createTeamspaceController = async (req, res) => {
   try {
     const { title, adminId, description } = req.body;
@@ -1555,58 +1555,136 @@ export const leaveTeamspaceController = async (req, res) => {
   }
 };
 
-
-export const teamInvite = async (req,res) =>{
-  try{
+export const teamInvite = async (req, res) => {
+  try {
+    console.log("Hereeeeeeeee");
     const { teamspaceId } = req.params;
-    if (!docId) {
+    if (!teamspaceId) {
       return res.status(404).send({
         success: false,
         message: "Teamspace id is required.",
       });
     }
-    const user = await userModel.findOne({email:req.body.email});
+    const teamSpaceDetails = await documentsModel.findById(teamspaceId);
 
-    const sender = await userModel.findById(req.user.id)
+    const sender = await userModel.findById(req.user.id);
 
-    let accessGiven =  await accessModel.findOne({
+    let userAccess = await accessModel.findOne({
       adminId: req.user.id,
       userEmail: req.body.email,
-      "teamspaces.teamspaceId": teamspaceId,
     });
-    if(accessGiven){
-      accessModel.updateOne({adminId: req.user.id,
-      userEmail: req.body.email},{
-        $push : { teamspaces: { teamspaceId: teamspaceId } }
-      })
-    }else{
-      const newAccess = new accessModel({
-        userId: user?._id,
+    console.log(userAccess);
+    // Creating access account if the user's first document access
+    if (!userAccess) {
+      console.log(
+        new accessModel({
+          adminId: req.user.id,
+          userEmail: req.body.email,
+          teamspaces: [{ teamspaceId }],
+        })
+      );
+      await accessModel.create({
         adminId: req.user.id,
         userEmail: req.body.email,
-        teamspaces: [{ teamspaceId: teamspaceId, access }],
+        teamspaces: [{ teamspaceId }],
       });
-      await newAccess.save();
+    } else if (
+      userAccess.teamspaces.find(
+        (teamspace) =>
+          teamspace?.teamspaceId.toString() === teamspaceId.toString()
+      )
+    ) {
+      return res.status(404).send({
+        success: false,
+        message: "User has already access for this team-space",
+      });
+    } else {
+      userAccess.teamspaces.push(teamspaceId);
+      await userAccess.save();
     }
 
     const templateData = {
-      userName: user.name,
-      workspaceName: `${sender?.email}'s workspace`,
+      workspaceName: teamSpaceDetails.title,
       addedBy: sender.name,
-      loginUrl: 'https://yourapp.com/login'
+      loginUrl: "https://yourapp.com/login",
     };
-    await sendEmail(req.body.email, 'workspaceinvite', templateData);
+    await sendEmail(req.body.email, templateData);
 
     res.status(200).send({
       success: true,
-      message: "Teamspace invite sent successfully."
+      message: "Teamspace invite sent successfully.",
     });
-    
-  }catch(err){
+  } catch (err) {
+    console.log(err);
     res.status(500).send({
       message: "An error occurred while sending the teamspace invite",
       success: false,
     });
   }
-}
+};
+
+export const invitedUsers = async (req, res) => {
+  try {
+    const { teamspaceId } = req.params;
+    if (!teamspaceId) {
+      return res.status(404).send({
+        success: false,
+        message: "Teamspace id is required.",
+      });
+    }
+
+    const accessDocs = await accessModel.aggregate([
+      {
+        $match: {
+          "teamspaces.teamspaceId": new mongoose.Types.ObjectId(teamspaceId),
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "userEmail",
+          foreignField: "email",
+          as: "userDetails",
+        },
+      },
+      {
+        $addFields: {
+          userDetails: { $arrayElemAt: ["$userDetails", 0] },
+        },
+      },
+      {
+        $addFields: {
+          username: {
+            $ifNull: ["$userDetails.name", "Unknown"],
+          },
+          isAccepted: {
+            $cond: {
+              if: { $eq: ["$userDetails.status", "Active"] },
+              then: true,
+              else: false,
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          userDetails: 0,
+        },
+      },
+    ]);
+
+    return res.status(200).send({
+      success: true,
+      message: "Invited user's list fetched successfully.",
+      data: accessDocs,
+    });
+
+  } catch (error) {
+    console.log(error);
+    return res.status(500).send({
+      success: false,
+      message: "An error occurred while fetching the invited users.",
+    });
+  }
+};
 

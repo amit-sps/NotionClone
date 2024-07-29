@@ -14,7 +14,8 @@ import {
   listOfGuestsController,
   updateAccessController,
   getSingleTeamspaceWithMembersController,
-  teamInvite
+  teamInvite,
+  invitedUsers
 } from "../controllers/teamspaceController.js";
 import upload from "../middlewares/multerMiddleware.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
@@ -77,5 +78,11 @@ router.put(
   "/teamspace-invite/:teamspaceId",
   requireSignIn,
   teamInvite
+);
+
+router.get(
+  "/invited/:teamspaceId",
+  requireSignIn,
+  invitedUsers
 );
 export default router;

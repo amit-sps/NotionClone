@@ -16,4 +16,6 @@ export const path = {
   updatePageContent: `${baseUrl}/api/v1/page/page-content`,
   updateUser: `${baseUrl}/api/v1/user/update-user`,
   sendTeamSpaceInvite: `${baseUrl}/api/v1/teamspace/teamspace-invite`,
+  getInvitedMembers: `${baseUrl}/api/v1/teamspace/invited`,
+
 };

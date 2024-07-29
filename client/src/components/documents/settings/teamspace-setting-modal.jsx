@@ -1,30 +1,18 @@
 /* eslint-disable react/prop-types */
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Button, Avatar } from "antd";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../../ui/tabs";
 import General from "./General";
 import axios from "axios";
 import { path } from "@/Api/newtorkPaths";
-import { toast } from "react-toastify";
+import { ToastContainer, toast } from "react-toastify";
 
 const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [email, setEmail] = useState("");
-  const [members, setMembers] = useState([
-    {
-      email: "john@example.com",
-      name: "John Doe",
-      profilePicture: "https://example.com/john.jpg",
-    },
-    {
-      email: "jane@example.com",
-      name: "Jane Smith",
-      profilePicture: "https://example.com/jane.jpg",
-    },
-    // Add more members as needed
-  ]);
+  const [members, setMembers] = useState([]);
 
   const handleInvite = async () => {
     const token = localStorage.getItem("accessToken");
@@ -33,10 +21,29 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
       { email },
       { headers: { Authorization: token } }
     );
+    getInvitedMembers()
     setInviteModalOpen(false);
     setEmail("");
-    toast.success("Invite sent on the user's email.");
+    toast.success("Invite sent the the user.", { autoClose: 1000 });
   };
+
+  const getInvitedMembers = async () => {
+    try {
+      const token = localStorage.getItem("accessToken");
+
+      const { data } = await axios.get(`${path.getInvitedMembers}/${doc._id}`, {
+        headers: { Authorization: token },
+      });
+
+      setMembers(data?.data || []);
+    } catch (error) {
+      setMembers([]);
+    }
+  };
+
+  useEffect(() => {
+    getInvitedMembers();
+  }, []);
 
   return (
     <Dialog>
@@ -79,8 +86,19 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                       <div key={index} className="flex items-center gap-4 mb-4">
                         <Avatar src={member.profilePicture} size={40} />
                         <div>
-                          <div className="font-semibold">{member.name}</div>
-                          <div className="text-gray-500">{member.email}</div>
+                          <div className="font-semibold">{member.username}</div>
+                          <div className="text-gray-500">
+                            {member.userEmail}
+                          </div>
+                          <div
+                            className={`text-sm ${
+                              member.isAccepted
+                                ? "text-green-500"
+                                : "text-red-500"
+                            }`}
+                          >
+                            {member.isAccepted ? "Accepted" : "Not Accepted"}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -107,6 +125,8 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                     </Dialog>
                   )}
                 </TabsContent>
+                <ToastContainer />
+
                 <TabsContent value="Security">Security</TabsContent>
               </Tabs>
             </div>

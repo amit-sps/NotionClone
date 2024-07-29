@@ -34,7 +34,6 @@ const AppRoutes = () => {
         const res = await axios.get(
           "http://localhost:3851/api/v1/auth/login/success"
         );
-        console.log("response check", res);
         if (res && res.data.success) {
           toast.success(res.data && res.data.message);
           setAuth({
@@ -49,7 +48,6 @@ const AppRoutes = () => {
           toast.error(res.data.message);
         }
       } catch (error) {
-        console.log("error", error);
         navigate("/login", { state: { from: location }, replace: true });
       }
     };
