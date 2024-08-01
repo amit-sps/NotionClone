@@ -21,6 +21,7 @@ const Documents = () => {
     createMutation,
     page,
     isLoadingPage: isLoading,
+    mutatePage,
   } = UseDocuments();
   const dispatch = useDispatch();
   const { privatePages } = useSelector((state) => state.PrivatePageReducer);
@@ -38,6 +39,10 @@ const Documents = () => {
 
   const [{ user }, setAuth, socket] = useAuth();
   const { id } = useParams();
+
+  useEffect(() => {
+    mutatePage();
+  }, [id]);
 
   //socket
   useEffect(() => {
@@ -76,9 +81,7 @@ const Documents = () => {
               <h2 className="text-lg font-medium">
                 Welcome to {user?.name}&apos;s Notion
               </h2>
-              <Button
-                onClick={createDocument}
-              >
+              <Button onClick={createDocument}>
                 <PlusCircle className="h-4 w-4 mr-2" />
                 Create a Page
               </Button>

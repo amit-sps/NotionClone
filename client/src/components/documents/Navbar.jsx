@@ -12,6 +12,7 @@ import UseDocuments from "@/pages/main/useDocuments";
 import { Menu } from "./menu";
 import { Banner } from "./Banner";
 import { Publish } from "./publish";
+import { ToastContainer } from "react-toastify";
 // import { Publish } from "./publish";
 
 export const Navbar = ({ isCollapsed, onResetWidth }) => {
@@ -54,6 +55,7 @@ export const Navbar = ({ isCollapsed, onResetWidth }) => {
         </div>
       </nav>
       {document.isArchived && <Banner documentId={document._id} />}
+      <ToastContainer/>
     </>
   );
 };

@@ -386,6 +386,7 @@ const UseDocuments = () => {
     pageContent,
     updateTitleMutation,
     upadteTeamspaceList,
+    mutatePage
   };
 };
 

@@ -633,3 +633,72 @@ export const aggregateController = async (req, res) => {
     });
   }
 };
+
+export const documentPublishToggle = async (req, res) => {
+  try {
+    const { docId } = req.params;
+
+    if (!docId) {
+      return res.status(400).json({
+        success: false,
+        message: "Document ID is required.",
+      });
+    }
+
+    const document = await documentsModel.findById(docId);
+    if (!document) {
+      return res.status(404).json({
+        success: false,
+        message: "Document not found.",
+      });
+    }
+
+    document.isPublished = !document.isPublished;
+    await document.save();
+
+    return res.status(200).json({
+      success: true,
+      message: `Document ${document.isPublished ? "published" : "unpublished"}.`,
+    });
+  } catch (error) {
+    console.error("Error toggling document publish status:", error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while updating the document.",
+    });
+  }
+};
+
+
+export const getPublishedDocument = async (req, res) => {
+  try {
+    const { docId } = req.params;
+    if (!docId) {
+      return res.status(404).send({
+        success: false,
+        message: "Document not found.",
+      });
+    }
+    const isDocExist = await documentsModel.findOne({
+      _id: docId,
+      isPublished: true,
+    });
+    if (!isDocExist) {
+      return res.status(404).send({
+        success: false,
+        message: "Document not found.",
+      });
+    }
+
+    return res.status(200).send({
+      success: false,
+      message: `Published document.`,
+      data: isDocExist,
+    });
+  } catch (error) {
+    res.status(500).send({
+      success: false,
+      message: "An error occurred while publish document",
+    });
+  }
+};

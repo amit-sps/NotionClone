@@ -20,6 +20,7 @@ import axios from "@/axiosConfig";
 import { useEffect } from "react";
 import DashboardLayout from "./Layout/DashboardLayout";
 import Authenticated from "./HOC/Authenticated";
+import Published from "./pages/Published";
 
 const AppRoutes = () => {
   const [auth, setAuth] = useAuth();
@@ -77,6 +78,7 @@ const AppRoutes = () => {
         path="/reset_password/:id/:token"
         element={<ResetPassword />}
       ></Route>
+      <Route path="/published/page/:id" element={<Published/>}/>
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
     </Routes>
