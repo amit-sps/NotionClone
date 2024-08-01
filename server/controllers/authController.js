@@ -237,9 +237,16 @@ export const loginControllerForGoogle = async (req, res) => {
         message: "Not Authorized",
       });
     }
-    const user = await userModel
-      .findOne({ email: req.user.email })
-      .select("-createdAt -updatedAt -__v -password");
+    const user = req.user.email
+      ? await userModel
+          .findOne({ email: req.user.email })
+          .select("-createdAt -updatedAt -__v -password")
+      : req.user.id
+      ? await userModel
+          .findById(req.user.id)
+          .select("-createdAt -updatedAt -__v -password")
+      : null;
+
     console.log("User after google login: ", user);
     if (!user) {
       return res.status(404).json({
@@ -272,6 +279,7 @@ export const loginControllerForGoogle = async (req, res) => {
         refreshToken,
       });
   } catch (error) {
+    console.log(error);
     res.status(500).send({
       success: false,
       message: "An error occurred while login",

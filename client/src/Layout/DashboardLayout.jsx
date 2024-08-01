@@ -7,6 +7,7 @@ import { Outlet } from "react-router-dom";
 
 const DashboardLayout = () => {
   const [{ user }, setAuth, socket] = useAuth();
+  console.log("DashboardLayoutDashboardLayoutDashboardLayoutDashboardLayoutDashboardLayoutDashboardLayout")
 
   return (
     <div className="min-h-full flex dark:bg-[#1F1F1F] ">

@@ -18,6 +18,7 @@ import NetworkApi from "@/Api/jwtInterceptor";
 const UserItem = () => {
   const [{ user }] = useAuth();
   const navigate = useNavigate();
+  const [auth, setAuth] = useAuth();
   const handleClearAllCookies = () => {
     const cookies = document.cookie.split(";");
 
@@ -41,6 +42,11 @@ const UserItem = () => {
       if (res.data.success) {
         localStorage.clear();
         handleClearAllCookies();
+        setAuth({
+          ...auth,
+          user: null,
+          accessToken: null,
+        });
         navigate("/login");
       }
     } catch (error) {

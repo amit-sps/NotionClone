@@ -8,6 +8,7 @@ import { useCookies } from "react-cookie";
 import axios from "@/axiosConfig";
 import "tailwindcss/tailwind.css";
 import "react-toastify/dist/ReactToastify.css";
+import Cookies from "js-cookie";
 
 const { Title, Text } = Typography;
 
@@ -18,9 +19,11 @@ const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [auth, setAuth] = useAuth();
+  const [{ user }] = useAuth();
+
 
   const loginWithGoogle = () => {
-    window.open("http://localhost:3851/auth/google/callback", "_self");
+    window.open("http://localhost:3851/auth/google", "_self");
   };
 
   const handleSubmit = async (values) => {
@@ -36,7 +39,6 @@ const Login = () => {
           user: res.data.user,
           accessToken: res.data.token,
         });
-        localStorage.setItem("user", JSON.stringify(res.data.user));
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
         navigate(location.state || "/documents");
@@ -50,11 +52,8 @@ const Login = () => {
   };
 
   useEffect(() => {
-    const user = localStorage.getItem("user");
-    if (user && Object.keys(user).length > 0) {
-      navigate("/documents");
-    }
-  }, [navigate]);
+    user && navigate("/documents");
+  }, [navigate, user]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-black">
@@ -122,14 +121,14 @@ const Login = () => {
           </Form.Item>
         </Form>
 
-        {/* <Button
+        <Button
           type="default"
           icon={<GoogleOutlined />}
           className="w-full mt-4 bg-red-600 hover:bg-red-700 text-white py-2 rounded-md transition-colors duration-200"
           onClick={loginWithGoogle}
         >
           Sign In with Google
-        </Button> */}
+        </Button>
 
         <div className="text-center mt-4">
           <Text className="text-white">

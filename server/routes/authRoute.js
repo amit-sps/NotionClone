@@ -20,7 +20,7 @@ router.post("/register", registerValidation, registerController);
 
 router.post("/login", loginValidation,loginController);
 
-router.get("/login/success", loginControllerForGoogle);
+router.get("/login/success", requireSignIn, loginControllerForGoogle);
 
 router.post(
   "/logout",

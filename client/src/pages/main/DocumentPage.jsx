@@ -10,19 +10,18 @@ import PageNotFound from "@/components/PageNotFound";
 import { useAuth } from "@/context/auth";
 // import { Toolbar } from "@/components/documents/toolbar";
 
-const DocumentIdPage = ({ documentId, page: document }) => {
+const DocumentIdPage = ({ documentId, page: document, }) => {
   const Editor = useMemo(
     () =>
       dynamic(() => import("@/components/documents/editor"), { ssr: false }),
     []
   );
-  //    const document = useQuery(api.documents.getById, {
-  //     documentId: params.documentId,
-  //   });
+ 
   const [content, setContent] = useState("");
   const [{ user }, setAuth, socket] = useAuth();
   //   const update = useMutation(api.documents.update);
   const { updatePageContentMutation, pageContent } = UseDocuments();
+  
   const [incomingContent, setIncomingContent] = useState(pageContent?.content);
   console.log("incomingContent", incomingContent, pageContent?.content);
 

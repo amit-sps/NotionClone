@@ -6,8 +6,7 @@ import { ApiError } from "../utils/ApiError.js";
 
 export const requireSignIn = async (req, res, next) => {
   try {
-    const token = req.header("Authorization") || req.cookies?.accessToken;
-    // console.log(token);
+    const token = req.headers["authorization"] || req.cookies?.accessToken;
     if (!token) {
       throw new ApiError(401, "Unauthorized request or invalid token.");
     }

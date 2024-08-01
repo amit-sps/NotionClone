@@ -13,10 +13,18 @@ import cookieParser from "cookie-parser";
 import { createServer } from "http";
 import compression from "compression";
 import approute from "./routes/index.js";
+import { generateAccessAndRefereshTokens } from "./controllers/authController.js";
 
 const app = express();
 
 //create server instance for socket
+const corsOptions = {
+  origin: process.env.FRONTEND_ORIGIN, // React app's origin
+  credentials: true, // Allow cookies to be sent with requests
+};
+
+app.use(cors(corsOptions));
+
 const server = createServer(app);
 const io = new Server(server, {
   cors: {
@@ -128,9 +136,19 @@ app.post("/update", updateDocument);
 app.get(
   "/auth/google/callback",
   passport.authenticate("google", {
-    successRedirect: process.env.GOOGLE_SUCCESS_REDIRECT,
     failureRedirect: process.env.GOOGLE_FAILURE_REDIRECT,
-  })
+  }),
+  async (req, res) => {
+    const user = req.user;
+    console.log(":::::::", user);
+    const { accessToken } = await generateAccessAndRefereshTokens(
+      user._id,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
+    const redirectUrl = `${process.env.GOOGLE_SUCCESS_REDIRECT}?googleToken=${accessToken}`;
+    res.redirect(redirectUrl);
+  }
 );
 
 //routes
@@ -225,7 +243,7 @@ io.on("connection", (socket) => {
     console.log("document title", data);
     addTitle(data, socket.id);
   });
-  
+
   socket.on("editTitle", (data) => {
     const page = getPage(data._id);
     if (page) {

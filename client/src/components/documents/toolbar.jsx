@@ -16,12 +16,11 @@ import { getTeamSpaces } from "@/redux/action/teamspace";
 export const Toolbar = ({ initialData, preview }) => {
   const inputRef = useRef(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [value, setValue] = useState(initialData.title);
-  const [icon, setIcon] = useState(initialData.icon);
+  const [value, setValue] = useState(initialData?.title);
+  const [icon, setIcon] = useState(initialData?.icon);
   const { updateTitleMutation, updateMutation, removeIconDocMutation } =
     UseDocuments();
-  // const update = useMutation(api.documents.update);
-  // const removeIcon = useMutation(api.documents.removeIcon);
+  
   const [{ user }, setAuth, socket] = useAuth();
   const dispatch = useDispatch();
 
@@ -84,17 +83,22 @@ export const Toolbar = ({ initialData, preview }) => {
       alert("Please choose a different icon to remove existing icon" + icon);
     }
   };
+
+  useEffect(() => {
+    setValue(initialData?.title || "");
+  }, [initialData?.title]);
+
   useEffect(() => {
     socket.current.on("getDoc", (data) => {
       console.log("socket getDoc", data.title);
       setValue(data?.title);
       dispatch(getPrivatePages());
-      dispatch(getTeamSpaces())
+      dispatch(getTeamSpaces());
     });
     socket.current.on("getIcon", (data) => {
       console.log("socket getIcon", data.icon);
       dispatch(getPrivatePages());
-      dispatch(getTeamSpaces())
+      dispatch(getTeamSpaces());
 
       setIcon(data?.icon);
     });

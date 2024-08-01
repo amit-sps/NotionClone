@@ -4,13 +4,23 @@ import { Logo } from "../Logo";
 import { Button } from "../ui/button";
 import { ModeToggle } from "../ModeToggle";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/context/auth";
 const Navbar = () => {
   const scrolled = useScrollTop();
+  const [auth, setAuth] = useAuth();
+
   // console.log("scrolled", scrolled);
   const user = localStorage.getItem("user");
   console.log("Object.keys(user).length", user);
 
   const handleLogout = async () => {
+    alert("clicked")
+    console.log("clicked");
+    setAuth({
+      ...auth,
+      user: null,
+      accessToken: null,
+    });
     localStorage.clear();
     window.open("http://localhost:3851/logout", "_self");
   };

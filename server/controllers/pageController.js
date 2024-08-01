@@ -263,6 +263,7 @@ export const getPageController = async (req, res) => {
 export const getPageContentController = async (req, res, next) => {
   const adminId = req.user.id;
   const documentId = req.params.documentId;
+  console.log(adminId, documentId,"::::::::::::::::::::::")
   try {
     if (!adminId || !documentId) {
       return res.status(400).send({

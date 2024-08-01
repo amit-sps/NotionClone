@@ -19,12 +19,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "@/axiosConfig";
 import { useEffect } from "react";
 import DashboardLayout from "./Layout/DashboardLayout";
+import Authenticated from "./HOC/Authenticated";
 
 const AppRoutes = () => {
   const [auth, setAuth] = useAuth();
   const navigate = useNavigate();
 
-  const data = localStorage.getItem("user");
   const token = localStorage.getItem("accessToken");
 
   useEffect(() => {
@@ -43,24 +43,16 @@ const AppRoutes = () => {
           localStorage.setItem("user", JSON.stringify(res.data.user));
           localStorage.setItem("accessToken", res.data.accessToken);
           localStorage.setItem("refreshToken", res.data.refreshToken);
-          navigate(location.state || "/documents");
+          // navigate(location.state || "/documents");
         } else {
           toast.error(res.data.message);
         }
       } catch (error) {
-        navigate("/login", { state: { from: location }, replace: true });
+        // navigate("/login", { state: { from: location }, replace: true });
       }
     };
-    if (data) {
-      const parsData = JSON.parse(data);
-      setAuth({
-        ...auth,
-        user: parsData,
-        accessToken: token,
-      });
-    } else {
-      getUser();
-    }
+
+    token && getUser();
   }, []);
   return (
     <Routes>
@@ -72,7 +64,10 @@ const AppRoutes = () => {
           </MarketingLayout>
         }
       />
-      <Route path="/documents" element={<DashboardLayout />}>
+      <Route
+        path="/documents"
+        element={<Authenticated element={<DashboardLayout />} />}
+      >
         <Route index element={<Documents />} />
         <Route path="/documents/:id" element={<Documents />} />
       </Route>
