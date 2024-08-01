@@ -462,7 +462,6 @@ export const getDocumentSearchController = async (req, res) => {
     const document = await documentsModel.find({
       adminId: id,
       type: { $ne: "teamspace" },
-      isPrivate: false,
     });
 
     const teamspace = await documentsModel.find({
