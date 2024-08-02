@@ -12,7 +12,8 @@ import {
   aggregateController,
   moveDocumentsController,
   documentPublishToggle,
-  getPublishedDocument
+  getPublishedDocument,
+  getPublisherRelatedPages
 } from "../controllers/documentController.js";
 import upload from "../middlewares/multerMiddleware.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
@@ -65,6 +66,8 @@ router.put("/move/:id", requireSignIn, moveDocumentsController);
 router.get("/test", requireSignIn, aggregateController);
 
 router.get("/publish/:docId",  getPublishedDocument)
+router.get("/publish/related/:publisherId",  getPublisherRelatedPages)
+
 
 router.put("/publish/:docId", requireSignIn, documentPublishToggle)
 

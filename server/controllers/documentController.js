@@ -658,7 +658,9 @@ export const documentPublishToggle = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: `Document ${document.isPublished ? "published" : "unpublished"}.`,
+      message: `Document ${
+        document.isPublished ? "published" : "unpublished"
+      }.`,
     });
   } catch (error) {
     console.error("Error toggling document publish status:", error);
@@ -669,7 +671,6 @@ export const documentPublishToggle = async (req, res) => {
   }
 };
 
-
 export const getPublishedDocument = async (req, res) => {
   try {
     const { docId } = req.params;
@@ -679,10 +680,13 @@ export const getPublishedDocument = async (req, res) => {
         message: "Document not found.",
       });
     }
-    const isDocExist = await documentsModel.findOne({
-      _id: docId,
-      isPublished: true,
-    }).populate("page").populate({path:"adminId", select:"name"});
+    const isDocExist = await documentsModel
+      .findOne({
+        _id: docId,
+        isPublished: true,
+      })
+      .populate("page")
+      .populate({ path: "adminId", select: "name" });
     if (!isDocExist) {
       return res.status(404).send({
         success: false,
@@ -699,6 +703,55 @@ export const getPublishedDocument = async (req, res) => {
     res.status(500).send({
       success: false,
       message: "An error occurred while publish document",
+    });
+  }
+};
+
+export const getPublisherRelatedPages = async (req, res) => {
+  try {
+    const { publisherId } = req.params;
+    const quantity = parseInt(req.query.quantity, 10) || 5;
+    const skipCurrentPage =
+      req?.query?.currentPage &&
+      new mongoose.Types.ObjectId(req?.query?.currentPage);
+
+    if (!publisherId) {
+      return res.status(400).send({
+        success: false,
+        message: "Publisher ID is required",
+      });
+    }
+
+    if (isNaN(quantity) || quantity <= 0) {
+      return res.status(400).send({
+        success: false,
+        message: "Quantity must be a positive number",
+      });
+    }
+
+    const relatedPosts = await documentsModel.aggregate([
+      {
+        $match: {
+          adminId: new mongoose.Types.ObjectId(publisherId),
+          isPublished: true,
+          _id: {
+            $ne: skipCurrentPage,
+          },
+        },
+      },
+      { $sample: { size: quantity } },
+    ]);
+
+    return res.status(200).send({
+      success: true,
+      message: "Related posts fetched successfully",
+      data: relatedPosts,
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).send({
+      success: false,
+      message: "An error occurred while fetching related posts",
     });
   }
 };

@@ -17,11 +17,9 @@ export const path = {
   updateUser: `${baseUrl}/api/v1/user/update-user`,
   sendTeamSpaceInvite: `${baseUrl}/api/v1/teamspace/teamspace-invite`,
   getInvitedMembers: `${baseUrl}/api/v1/teamspace/invited`,
-  getPageContent:`${baseUrl}/api/v1/page/page-content`,
-  getPage:`${baseUrl}/api/v1/page`,
+  getPageContent: `${baseUrl}/api/v1/page/page-content`,
+  getPage: `${baseUrl}/api/v1/page`,
   togglePublish: `${baseUrl}/api/v1/document/publish`,
   getPublishPage: `${baseUrl}/api/v1/document/publish`,
-
-
-
+  getRelatedPublishPage: `${baseUrl}/api/v1/document/publish/related`,
 };
