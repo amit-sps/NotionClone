@@ -20,6 +20,8 @@ export const path = {
   getPageContent:`${baseUrl}/api/v1/page/page-content`,
   getPage:`${baseUrl}/api/v1/page`,
   togglePublish: `${baseUrl}/api/v1/document/publish`,
+  getPublishPage: `${baseUrl}/api/v1/document/publish`,
+
 
 
 };

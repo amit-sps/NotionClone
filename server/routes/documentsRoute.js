@@ -64,7 +64,7 @@ router.put("/move/:id", requireSignIn, moveDocumentsController);
 //aggregations testing
 router.get("/test", requireSignIn, aggregateController);
 
-router.get("/publish/:docId", requireSignIn, getPublishedDocument)
+router.get("/publish/:docId",  getPublishedDocument)
 
 router.put("/publish/:docId", requireSignIn, documentPublishToggle)
 

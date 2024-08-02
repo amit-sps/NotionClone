@@ -682,7 +682,7 @@ export const getPublishedDocument = async (req, res) => {
     const isDocExist = await documentsModel.findOne({
       _id: docId,
       isPublished: true,
-    });
+    }).populate("page").populate({path:"adminId", select:"name"});
     if (!isDocExist) {
       return res.status(404).send({
         success: false,
