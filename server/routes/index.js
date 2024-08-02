@@ -9,6 +9,7 @@ import usersRoute from './usersRoute.js';
 import trashRoute from './trashRoute.js';
 import settingsRoute from './settingsRoute.js';
 import openAiRoute from './openAiRoute.js';
+import blogRoute from './blogRoute.js';
 
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.use('/user', usersRoute);
 router.use('/trash', trashRoute);
 router.use('/settings', settingsRoute);
 router.use('/ai', openAiRoute);
+router.use('/blog',blogRoute)
 
 export default router;
