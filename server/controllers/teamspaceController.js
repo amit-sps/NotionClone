@@ -112,22 +112,26 @@ export const defaultTeamspaceAccessController = async (req, res) => {
 export const getTeamspaceController = async (req, res) => {
   try {
     const user = await userModel.findById(req.user.id);
-
-    const data = await documentsModel.find({
-      adminId: req.user.id,
-      type: "teamspace",
-      isArchived: false,
-      isPrivate: false,
-    });
+  const accessTeamspace = await accessModel.find({ userEmail: user.email });
+  const ids = accessTeamspace.reduce((acc, team) => {
+    const teamspaceIds = team.teamspaces.map(
+      (teamspace) => teamspace.teamspaceId
+    );
+    return acc.concat(teamspaceIds);
+  }, []);
+  const data = await documentsModel.find({
+    $or: [{ _id: { $in: ids } }, { adminId: req.user.id }],
+    type: "teamspace",
+    isArchived: false,
+    isPrivate: false,
+  });
     // .populate({ path: "adminId" })
     // .select("-createdAt -updatedAt -__v ");
-
     const PagesWithFlag = data.map((page) => ({
       ...page.toObject(),
       isShared: false,
     }));
 
-    // console.log("teamspace data: ", data);
 
     const sharedPages = await documentsModel.find({
       $or: [
@@ -149,78 +153,7 @@ export const getTeamspaceController = async (req, res) => {
       data: [...PagesWithFlag, ...sharedPagesWithFlag],
     });
 
-    /* Solving by using agregation method */
-
-    // const teamspacePipeline = [
-    //   {
-    //     $match: {
-    //       $or: [
-    //         { adminId: req.user.id, type: "teamspace", isArchived: false },
-    //         {
-    //           $and: [
-    //             {
-    //               $or: [
-    //                 { "accessUsers.email": user.email },
-    //                 { "accessUsers.userId": user._id },
-    //               ],
-    //             },
-    //             { type: "teamspace", isArchived: false },
-    //           ],
-    //         },
-    //       ],
-    //     },
-    //   },
-    //   {
-    //     $lookup: {
-    //       from: "users", // Assuming the collection name is "users"
-    //       localField: "adminId",
-    //       foreignField: "_id",
-    //       as: "admin",
-    //     },
-    //   },
-    //   {
-    //     $project: {
-    //       _id: 1,
-    //       title: 1,
-    //       adminId: 1,
-    //       isArchived: 1,
-    //       page: 1,
-    //       type: 1,
-    //       favorites: 1,
-    //       teamspaceId: 1,
-    //       content: 1,
-    //       description: 1,
-    //       coverImage: 1,
-    //       icon: 1,
-    //       isPublished: 1,
-    //       cloudinary_id: 1,
-    //       defaultAccess: 1,
-    //       // accessUsers: 1,
-    //       admin: { $arrayElemAt: ["$admin", 0] },
-    //       isShared: {
-    //         $cond: {
-    //           if: {
-    //             $ne: [
-    //               { $toObjectId: "$adminId" },
-    //               new mongoose.Types.ObjectId(user._id),
-    //             ],
-    //           },
-    //           then: true,
-    //           else: false,
-    //         },
-    //       },
-    //     },
-    //   },
-    // ];
-
-    // const teamspaceData = await documentsModel.aggregate(teamspacePipeline);
-
-    // res.status(200).send({
-    //   success: true,
-    //   message: "Teamspace list fetched successfully",
-    //   data: teamspaceData,
-    // });
-  } catch (error) {
+   } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
