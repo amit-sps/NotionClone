@@ -84,7 +84,7 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                   <div>
                     {members.map((member, index) => (
                       <div key={index} className="flex items-center gap-4 mb-4">
-                        <Avatar src={member.profilePicture} size={40} />
+                        <Avatar src={member?.image} size={40} />
                         <div>
                           <div className="w-full flex justify-between">
                             <div className="font-semibold">
