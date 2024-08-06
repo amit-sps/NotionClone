@@ -112,26 +112,25 @@ export const defaultTeamspaceAccessController = async (req, res) => {
 export const getTeamspaceController = async (req, res) => {
   try {
     const user = await userModel.findById(req.user.id);
-  const accessTeamspace = await accessModel.find({ userEmail: user.email });
-  const ids = accessTeamspace.reduce((acc, team) => {
-    const teamspaceIds = team.teamspaces.map(
-      (teamspace) => teamspace.teamspaceId
-    );
-    return acc.concat(teamspaceIds);
-  }, []);
-  const data = await documentsModel.find({
-    $or: [{ _id: { $in: ids } }, { adminId: req.user.id }],
-    type: "teamspace",
-    isArchived: false,
-    isPrivate: false,
-  });
+    const accessTeamspace = await accessModel.find({ userEmail: user.email });
+    const ids = accessTeamspace.reduce((acc, team) => {
+      const teamspaceIds = team.teamspaces.map(
+        (teamspace) => teamspace.teamspaceId
+      );
+      return acc.concat(teamspaceIds);
+    }, []);
+    const data = await documentsModel.find({
+      $or: [{ _id: { $in: ids } }, { adminId: req.user.id }],
+      type: "teamspace",
+      isArchived: false,
+      isPrivate: false,
+    });
     // .populate({ path: "adminId" })
     // .select("-createdAt -updatedAt -__v ");
     const PagesWithFlag = data.map((page) => ({
       ...page.toObject(),
       isShared: false,
     }));
-
 
     const sharedPages = await documentsModel.find({
       $or: [
@@ -152,8 +151,7 @@ export const getTeamspaceController = async (req, res) => {
       message: "Teamspace list fetched successfully",
       data: [...PagesWithFlag, ...sharedPagesWithFlag],
     });
-
-   } catch (error) {
+  } catch (error) {
     console.log(error);
     res.status(500).send({
       success: false,
@@ -1565,6 +1563,18 @@ export const invitedUsers = async (req, res) => {
         message: "Teamspace id is required.",
       });
     }
+    const { adminId } = await documentsModel
+      .findOne({ teamspaceId })
+      .populate("adminId")
+      .lean();
+
+    const createdByDetails = {
+      _id: adminId?._id,
+      userEmail: adminId?.email,
+      username: adminId?.name,
+      isAccepted: true,
+      creator: true,
+    };
 
     const accessDocs = await accessModel.aggregate([
       {
@@ -1606,12 +1616,13 @@ export const invitedUsers = async (req, res) => {
       },
     ]);
 
+    accessDocs.unshift(createdByDetails);
+
     return res.status(200).send({
       success: true,
       message: "Invited user's list fetched successfully.",
       data: accessDocs,
     });
-
   } catch (error) {
     console.log(error);
     return res.status(500).send({
@@ -1620,4 +1631,3 @@ export const invitedUsers = async (req, res) => {
     });
   }
 };
-

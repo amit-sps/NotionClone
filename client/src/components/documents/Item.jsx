@@ -28,6 +28,8 @@ import { PopoverContent, PopoverTrigger } from "../ui/popover";
 import { useMediaQuery } from "@uidotdev/usehooks";
 import PopoverBox from "./TrashBox";
 import { IconPicker } from "./icon-picker";
+import { useDispatch } from "react-redux";
+import { getTeamspaceDocuments } from "@/redux/action/teamspace";
 
 export const Item = ({
   id,
@@ -58,6 +60,7 @@ export const Item = ({
     updateMutation,
   } = UseDocuments();
   const [modal, setModal] = useState(false);
+  const dispatch = useDispatch();
   const onDelete = (event) => {
     event.stopPropagation();
     if (level === -1) {
@@ -89,7 +92,7 @@ export const Item = ({
       adminId: doc.adminId,
       teamspaceId: doc.type === "teamspace" ? doc._id : doc.teamspaceId,
     };
-    const promise = createMutation(data, level).then((documentId) => {
+    createMutation(data, level).then((documentId) => {
       if (!expanded) {
         return onExpand?.();
       }
@@ -97,14 +100,9 @@ export const Item = ({
         onExpand?.();
       }
       onExpand?.();
-      // router.push(`/documents/${documentId}`);
     });
   };
   const onIconSelect = (icon) => {
-    // console.log("onIconSelect", {
-    //   id: doc._id,
-    //   icon,
-    // });
     updateMutation(
       {
         ...doc,

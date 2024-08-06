@@ -1,6 +1,7 @@
 
 import axios from "axios";
 import * as constant from "../constant";
+import { path } from "@/Api/newtorkPaths";
 
 export const getTeamSpaces = (data) => async (dispatch) => {
   try {
@@ -12,5 +13,19 @@ export const getTeamSpaces = (data) => async (dispatch) => {
   } catch (error) {
     console.error("Error fetching documents:", error);
     dispatch({ type: constant.SET_TEAM_SPACE, data: [] });
+  }
+};
+
+
+export const getTeamspaceDocuments = (teamspaceId) => async (dispatch) => {
+  try {
+    const token = localStorage.getItem("accessToken");
+    const { data } = await axios(`${path.documentList}/${teamspaceId}`, {
+      headers: { Authorization: token },
+    });
+    dispatch({ type: constant.SET_TEAM_SPACE_DOCUMENTS, data: data?.data || [], teamSpace: teamspaceId });
+  } catch (error) {
+    console.error("Error fetching documents:", error);
+    dispatch({ type: constant.SET_TEAM_SPACE_DOCUMENTS, data: [] });
   }
 };

@@ -21,7 +21,7 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
       { email },
       { headers: { Authorization: token } }
     );
-    getInvitedMembers()
+    getInvitedMembers();
     setInviteModalOpen(false);
     setEmail("");
     toast.success("Invite sent the the user.", { autoClose: 1000 });
@@ -86,7 +86,12 @@ const TeamspaceSettingModal = ({ doc, openModal, setOpenModal, children }) => {
                       <div key={index} className="flex items-center gap-4 mb-4">
                         <Avatar src={member.profilePicture} size={40} />
                         <div>
-                          <div className="font-semibold">{member.username}</div>
+                          <div className="w-full flex justify-between">
+                            <div className="font-semibold">
+                              {member.username}
+                            </div>
+                            <div>{member.creator && <small>admin</small>}</div>
+                          </div>
                           <div className="text-gray-500">
                             {member.userEmail}
                           </div>

@@ -6,8 +6,11 @@ import axios from "@/axiosConfig";
 // import NetworkApi from "./networkApi";
 import NetworkApi from "./jwtInterceptor";
 
-export const createDocument = async (data) => {
+export const createDocument = async (data, callback) => {
   const res = await NetworkApi.post(path.createDocument, data);
+  if(callback){
+    callback();
+  }
   return res.data.data;
 };
 export const createFavoriteDocument = async (id) => {
@@ -34,8 +37,11 @@ export const getDocument = async (...data) => {
 //   console.log("getChildDocument", res.data.data);
 //   return res.data.data;
 // };
-export const deleteDocument = async (id) => {
+export const deleteDocument = async (id, callback) => {
   const res = await NetworkApi.delete(`${path.deleteDocument}/${id}`);
+  if(callback){
+    callback();
+  }
   return res;
 };
 

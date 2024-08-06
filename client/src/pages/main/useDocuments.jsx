@@ -33,9 +33,12 @@ import { useState } from "react";
 //   useTeamspaceList,
 // } from "@/hooks/Documents";
 // import { path } from "@/Api/newtorkPaths";
-import { useParams } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useNavigate, useParams } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import { getPrivatePages } from "@/redux/action/privatePage";
+import { getTeamSpaces, getTeamspaceDocuments } from "@/redux/action/teamspace";
+import axios from "axios";
+import { path } from "@/Api/newtorkPaths";
 const UseDocuments = () => {
   const [isEdit, setEdit] = useState(false);
   const [{ user }] = useAuth();
@@ -44,6 +47,11 @@ const UseDocuments = () => {
   const [revalidatePage, setRevalidatePage] = useState(0);
   const [expanded, setExpanded] = useState({});
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { documentsList: totalDocuments } = useSelector(
+    (state) => state.TeamSpaceReducer
+  );
+
   const { id } = useParams();
   const onExpand = (documentId) => {
     setExpanded((prevExpanded) => ({
@@ -145,6 +153,8 @@ const UseDocuments = () => {
         deleteTeamspaceDocument(id),
         deleteDocumentOptions(id)
       );
+
+      dispatch(getTeamSpaces());
     } catch (error) {
       console.log(error);
     }
@@ -225,8 +235,7 @@ const UseDocuments = () => {
     try {
       await mutateTrashList(removeTrashDocument(id), deleteDocumentOptions(id));
       setRevalidateTime(1000);
-      dispatch(getPrivatePages())
-
+      dispatch(getPrivatePages());
     } catch (error) {
       console.log(error);
     }
@@ -234,15 +243,38 @@ const UseDocuments = () => {
 
   const createMutation = async (data) => {
     try {
-      await mutateDocumets(createDocument(data), createDocumentOptions(data));
-      dispatch(getPrivatePages())
+      await mutateDocumets(
+        createDocument(data, () => {
+          if (data?.teamspaceId) {
+            dispatch(getTeamspaceDocuments(data?.teamspaceId));
+          }
+        }),
+        createDocumentOptions(data)
+      );
+      dispatch(getPrivatePages());
     } catch (error) {
       console.log(error);
     }
   };
   const deleteMutation = async (id) => {
     try {
-      await mutateDocumets(deleteDocument(id), deleteDocumentOptions(id));
+      const token = localStorage.getItem("accessToken");
+      const { data } = await axios.get(`${path.getPage}/${id}`, {
+        headers: { Authorization: token },
+      });
+      await mutateDocumets(
+        deleteDocument(id, () => {
+          if (totalDocuments.length < 2) {
+            navigate("/documents");
+          }
+          if (data?.data?.type == "document") {
+            dispatch(getTeamspaceDocuments(data?.data?.teamspaceId));
+          } else {
+            alert("Not Here...");
+          }
+        }),
+        deleteDocumentOptions(id)
+      ).then(() => {});
     } catch (error) {
       console.log(error);
     }
@@ -386,7 +418,7 @@ const UseDocuments = () => {
     pageContent,
     updateTitleMutation,
     upadteTeamspaceList,
-    mutatePage
+    mutatePage,
   };
 };
 

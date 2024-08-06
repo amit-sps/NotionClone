@@ -9,12 +9,14 @@ import axios from "axios";
 import { useAuth } from "@/context/auth";
 import { IconPicker } from "./icon-picker";
 import NotionLogo from "./NotionLogo";
+import { useDispatch, useSelector } from "react-redux";
+import { getTeamspaceDocuments } from "@/redux/action/teamspace";
 const DocumentList = ({ parentDocumentId, level = 0, isFavorite }) => {
   const { documentId } = useParams();
   const navigate = useNavigate();
   const [updateDocument, setUpdateDocument] = useState({});
   const {
-    documentsList,
+    // documentsList,
     isEdit,
     setEdit,
     updateMutation,
@@ -23,10 +25,16 @@ const DocumentList = ({ parentDocumentId, level = 0, isFavorite }) => {
     onExpand,
   } = UseDocuments();
   const inputRef = useRef(null);
+  const dispatch = useDispatch();
+
+  const { documentsList } = useSelector((state) => state.TeamSpaceReducer);
+
+  console.log(documentsList);
 
   useEffect(() => {
     if (parentDocumentId) {
       setID(parentDocumentId);
+      dispatch(getTeamspaceDocuments(parentDocumentId));
     }
   }, [parentDocumentId]);
   const handleUpdateChange = (event) => {
@@ -92,64 +100,64 @@ const DocumentList = ({ parentDocumentId, level = 0, isFavorite }) => {
       >
         No pages inside
       </p>
-      {documentsList?.map((document) => (
-        <div key={document._id}>
-          {isEdit && updateDocument?._id == document?._id ? (
-            <span className="border">
-              <IconPicker document={document} onChange={onIconSelect}>
-                {document?.icon
-                  ? document?.icon
-                  : // <Icon className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
-                    (level === -1 || isFavorite) && (
-                      <p className="text-6xl hover:opacity-75 transition">
-                        <div className="shrink-0 mr-2 text-[18px]">
-                          <NotionLogo
-                            letter={document?.title?.substring(0, 1)}
-                          />
-                        </div>
-                      </p>
-                    )}
-              </IconPicker>
-              <input
-                type="text"
-                ref={inputRef}
-                value={updateDocument?.title}
-                onChange={handleUpdateChange}
-                onBlur={() => {
-                  console.log("updateDocument", updateDocument);
-                  updateMutation(updateDocument, level);
-                  setEdit(false);
-                }}
-                className="editInput dark:text-black ml-2 rounded-sm px-1"
+      {documentsList[parentDocumentId] &&
+        documentsList[parentDocumentId].map((document) => (
+          <div key={document._id}>
+            {isEdit && updateDocument?._id === document?._id ? (
+              <span className="border">
+                <IconPicker document={document} onChange={onIconSelect}>
+                  {document?.icon
+                    ? document?.icon
+                    : (level === -1 || isFavorite) && (
+                        <p className="text-6xl hover:opacity-75 transition">
+                          <div className="shrink-0 mr-2 text-[18px]">
+                            <NotionLogo
+                              letter={document?.title?.substring(0, 1)}
+                            />
+                          </div>
+                        </p>
+                      )}
+                </IconPicker>
+                <input
+                  type="text"
+                  ref={inputRef}
+                  value={updateDocument?.title}
+                  onChange={handleUpdateChange}
+                  onBlur={() => {
+                    console.log("updateDocument", updateDocument);
+                    updateMutation(updateDocument, level);
+                    setEdit(false);
+                  }}
+                  className="editInput dark:text-black ml-2 rounded-sm px-1"
+                />
+              </span>
+            ) : (
+              <Item
+                id={document._id}
+                onClick={() => onRedirect(document._id)}
+                label={document.title}
+                icon={FileIcon}
+                documentIcon={document.icon}
+                active={documentId === document._id}
+                level={level}
+                onExpand={() => onExpand(document._id)}
+                expanded={expanded[document._id]}
+                setUpdateDocument={setUpdateDocument}
+                setEdit={setEdit}
+                doc={document}
+                isFavorite={isFavorite}
+                handleEdit={handleEdit}
               />
-            </span>
-          ) : (
-            <Item
-              id={document._id}
-              onClick={() => onRedirect(document._id)}
-              label={document.title}
-              icon={FileIcon}
-              documentIcon={document.icon}
-              active={documentId === document._id}
-              level={level}
-              onExpand={() => onExpand(document._id)}
-              expanded={expanded[document._id]}
-              setUpdateDocument={setUpdateDocument}
-              setEdit={setEdit}
-              doc={document}
-              isFavorite={isFavorite}
-              handleEdit={handleEdit}
-            />
-          )}
-          {expanded[document._id] && (
-            <DocumentList
-              isFavorite={isFavorite}
-              parentDocumentId={document._id}
-              level={level + 1}
-            />
-          )}
-        </div>
-      ))}
+            )}
+            {expanded[document._id] && (
+              <DocumentList
+                isFavorite={isFavorite}
+                parentDocumentId={document._id}
+                level={level + 1}
+              />
+            )}
+          </div>
+        ))}
     </>
   );
 };
