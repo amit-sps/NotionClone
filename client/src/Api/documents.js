@@ -82,8 +82,11 @@ export const updateDocument = async (data) => {
 
   return res.data.data;
 };
-export const updateTeamspace = async (data) => {
+export const updateTeamspace = async (data, callback) => {
   const res = await NetworkApi.put(`${path.updateDocument}`, data);
+  if(callback){
+    callback()
+  }
   return res.data.data;
 };
 

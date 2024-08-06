@@ -171,7 +171,13 @@ const UseDocuments = () => {
   };
   const upadteTeamspaceList = async (data) => {
     try {
-      mutateTeamspaceList(updateTeamspace(data), updateTeamspaceOptions(data));
+      mutateTeamspaceList(
+        updateTeamspace(data, () => {
+          dispatch(getTeamSpaces());
+          dispatch(getPrivatePages);
+        }),
+        updateTeamspaceOptions(data)
+      );
     } catch (error) {
       console.log(error);
     }

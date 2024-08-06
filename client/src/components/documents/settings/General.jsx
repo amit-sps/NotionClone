@@ -1,52 +1,71 @@
 /* eslint-disable react/prop-types */
-
 import UseDocuments from "@/pages/main/useDocuments";
 import NotionLogo from "../NotionLogo";
 import { IconPicker } from "../icon-picker";
 import { Globe, ArrowRightToLine, Archive } from "lucide-react";
 import { useAuth } from "@/context/auth";
+import { useState, useEffect, useCallback } from "react";
+import debounce from "lodash.debounce";
 
 const General = ({ doc }) => {
   const { upadteTeamspaceList } = UseDocuments();
+  const [docTitle, setDocTitle] = useState(doc?.title);
+  const [docIcon, setDocIcon] = useState(doc?.icon);
+
   const [{ user }] = useAuth();
+
   const onIconSelect = (icon) => {
+    setDocIcon(icon);
     upadteTeamspaceList({
       ...doc,
       icon: icon,
     });
   };
+
+  const updateDocTitle = useCallback(
+    debounce((newTitle) => {
+      upadteTeamspaceList({
+        ...doc,
+        title: newTitle,
+      });
+    }, 1000),
+    [doc, upadteTeamspaceList]
+  );
+
+  useEffect(() => {
+    updateDocTitle(docTitle);
+  }, [docTitle, updateDocTitle]);
+
   return (
     <div>
       <span className="text-md">Details</span>
       <div className="border text-sm rounded-sm mt-2 px-4 py-2">
-        <div className="">
+        <div>
           <span>Icon and Name</span>
-          <span className="text-base text-black mt-2 flex items-center justify-start">
-            <div className="shrink-0 mr-2 text-18px]">
-              {" "}
+          <div className="text-base text-black mt-2 flex items-center justify-start">
+            <div className="relative">
               <IconPicker onChange={onIconSelect}>
-                {
-                  doc?.icon ? (
-                    <p className="text-2xl hover:opacity-75 transition">
-                      <div className="shrink-0 mr-2 text-[20px] border-[1px]  rounded-md ">
-                        {doc?.icon}
-                      </div>
-                    </p>
-                  ) : (
-                    // <Icon className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
-                    // (level === -1 || isFavorite) && (
-                    <p className="text-2xl hover:opacity-75 transition">
-                      <div className="shrink-0 mr-2 text-[10px]">
-                        <NotionLogo letter={doc?.title?.substring(0, 1)} />
-                      </div>
-                    </p>
-                  )
-                  // )
-                }
+                {docIcon ? (
+                  <p className="text-2xl hover:opacity-75 transition">
+                    <div className="shrink-0 mr-2 text-[20px] border-[1px] rounded-md">
+                      {docIcon}
+                    </div>
+                  </p>
+                ) : (
+                  <p className="text-2xl hover:opacity-75 transition">
+                    <div className="shrink-0 mr-2 text-[10px]">
+                      <NotionLogo letter={doc?.title?.substring(0, 1)} />
+                    </div>
+                  </p>
+                )}
               </IconPicker>
             </div>
-            <input className="capitalize" value={doc?.title} />
-          </span>
+            <input
+              className="capitalize"
+              value={docTitle}
+              onChange={(e) => setDocTitle(e.target.value)}
+            />
+          </div>
         </div>
         <hr className="my-2" />
 
@@ -80,7 +99,7 @@ const General = ({ doc }) => {
         </div>
         <hr className="my-2" />
 
-        <div className="flex  gap-4 items-center text-muted-foreground">
+        <div className="flex gap-4 items-center text-muted-foreground">
           <span>{user.logo}</span>
           <div className="text-sm text-muted-foreground my-2">
             Every one at {user.title} has full access

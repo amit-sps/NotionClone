@@ -1,11 +1,6 @@
 import EmojiPicker, { Theme } from "emoji-picker-react";
 import { useTheme } from "next-themes";
-
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover } from "@headlessui/react";
 
 export const IconPicker = ({ onChange, children, asChild, document, editable }) => {
   const { resolvedTheme } = useTheme();
@@ -19,15 +14,19 @@ export const IconPicker = ({ onChange, children, asChild, document, editable }) 
   const theme = themeMap[currentTheme];
 
   return (
-    <Popover>
-      <PopoverTrigger asChild={asChild}>{children}</PopoverTrigger>
-      <PopoverContent className="p-0 w-full border-none shadow-none">
-        <EmojiPicker
-          height={350}
-          theme={theme}
-          onEmojiClick={(data) => onChange(data.emoji, document)}
-        />
-      </PopoverContent>
+    <Popover className="relative">
+      <Popover.Button as={asChild ? "div" : "button"} className="focus:outline-none">
+        {children}
+      </Popover.Button>
+      <Popover.Panel className="absolute z-10">
+        <div className="p-0 w-full border-none shadow-none">
+          <EmojiPicker
+            height={350}
+            theme={theme}
+            onEmojiClick={(data) => onChange(data.emoji, document)}
+          />
+        </div>
+      </Popover.Panel>
     </Popover>
   );
 };

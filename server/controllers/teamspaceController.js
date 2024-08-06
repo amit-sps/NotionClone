@@ -1572,7 +1572,7 @@ export const invitedUsers = async (req, res) => {
       _id: adminId?._id,
       userEmail: adminId?.email,
       username: adminId?.name,
-      image: adminId?.name || "",
+      image: adminId?.image || "",
       isAccepted: true,
       creator: true,
     };
