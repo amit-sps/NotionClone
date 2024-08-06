@@ -29,12 +29,12 @@ const General = ({ doc }) => {
         title: newTitle,
       });
     }, 1000),
-    [doc, upadteTeamspaceList]
+    []
   );
 
   useEffect(() => {
     updateDocTitle(docTitle);
-  }, [docTitle, updateDocTitle]);
+  }, [docTitle]);
 
   return (
     <div>

@@ -174,7 +174,7 @@ const UseDocuments = () => {
       mutateTeamspaceList(
         updateTeamspace(data, () => {
           dispatch(getTeamSpaces());
-          dispatch(getPrivatePages);
+          dispatch(getPrivatePages());
         }),
         updateTeamspaceOptions(data)
       );
