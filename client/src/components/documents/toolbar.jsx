@@ -18,7 +18,7 @@ export const Toolbar = ({ initialData, preview }) => {
   const [isEditing, setIsEditing] = useState(false);
   const [value, setValue] = useState(initialData?.title);
   const [icon, setIcon] = useState(initialData?.icon);
-  const { updateTitleMutation, updateMutation, removeIconDocMutation } =
+  const { updateTitleMutation, updateMutation, removeIconDocMutation, mutatePage } =
     UseDocuments();
   
   const [{ user }, setAuth, socket] = useAuth();
@@ -65,7 +65,7 @@ export const Toolbar = ({ initialData, preview }) => {
     updateMutation({
       ...initialData,
       icon: icon,
-    }); //editIcon
+    });
     socket.current.emit("editIcon", {
       ...initialData,
       icon: icon,
@@ -101,7 +101,7 @@ export const Toolbar = ({ initialData, preview }) => {
       dispatch(getPrivatePages());
       dispatch(getTeamSpaces());
       dispatch(getTeamspaceDocuments(data?.parentDocument))
-
+      mutatePage()
       setIcon(data?.icon);
     });
   }, []);
