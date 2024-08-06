@@ -246,7 +246,7 @@ const UseDocuments = () => {
       await mutateDocumets(
         createDocument(data, () => {
           if (data?.teamspaceId) {
-            dispatch(getTeamspaceDocuments(data?.teamspaceId));
+            dispatch(getTeamspaceDocuments(data?.parentDocument));
           }
         }),
         createDocumentOptions(data)
@@ -268,7 +268,7 @@ const UseDocuments = () => {
             navigate("/documents");
           }
           if (data?.data?.type == "document") {
-            dispatch(getTeamspaceDocuments(data?.data?.teamspaceId));
+            dispatch(getTeamspaceDocuments(data?.data?.parentDocument));
           } else {
             alert("Not Here...");
           }

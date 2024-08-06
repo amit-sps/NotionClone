@@ -18,6 +18,9 @@ export const getTeamSpaces = (data) => async (dispatch) => {
 
 
 export const getTeamspaceDocuments = (teamspaceId) => async (dispatch) => {
+  if(!teamspaceId){
+    return;
+  }
   try {
     const token = localStorage.getItem("accessToken");
     const { data } = await axios(`${path.documentList}/${teamspaceId}`, {

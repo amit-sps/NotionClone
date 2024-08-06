@@ -168,13 +168,10 @@ app.get("/logout", (req, res, next) => {
 // all join users are stored in pages array
 let pages = [];
 const addPage = (pageData, socketId) => {
-  console.log("addPage all pages", pages);
 
   //chacking page and pushingn the socket id into that page
   let page = pages.find((page) => page._id === pageData?._id);
-  console.log("|--------page", page);
   if (page) {
-    console.log("available page :", page);
     pages = pages.map((page) => {
       if (page?._id === pageData?._id) {
         if (!page.socketId.includes(socketId)) {
@@ -221,7 +218,6 @@ const getPage = (pageId) => {
 io.on("connection", (socket) => {
   console.log("A page connected");
   socket.on("addPage", (pageData) => {
-    console.log("addPage pageData:", pageData);
     addPage(pageData, socket.id);
   });
   socket.on("editPage", (data) => {

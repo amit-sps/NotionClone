@@ -11,7 +11,7 @@ import UseDocuments from "@/pages/main/useDocuments";
 import { useAuth } from "@/context/auth";
 import { useDispatch } from "react-redux";
 import { getPrivatePages } from "@/redux/action/privatePage";
-import { getTeamSpaces } from "@/redux/action/teamspace";
+import { getTeamSpaces, getTeamspaceDocuments } from "@/redux/action/teamspace";
 
 export const Toolbar = ({ initialData, preview }) => {
   const inputRef = useRef(null);
@@ -94,11 +94,13 @@ export const Toolbar = ({ initialData, preview }) => {
       setValue(data?.title);
       dispatch(getPrivatePages());
       dispatch(getTeamSpaces());
+      dispatch(getTeamspaceDocuments(data?.parentDocument))
     });
     socket.current.on("getIcon", (data) => {
       console.log("socket getIcon", data.icon);
       dispatch(getPrivatePages());
       dispatch(getTeamSpaces());
+      dispatch(getTeamspaceDocuments(data?.parentDocument))
 
       setIcon(data?.icon);
     });
