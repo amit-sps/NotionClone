@@ -21,6 +21,8 @@ import { useEffect } from "react";
 import DashboardLayout from "./Layout/DashboardLayout";
 import Authenticated from "./HOC/Authenticated";
 import Published from "./pages/Published";
+import Kanban from "./pages/Kanban";
+import KanbanDetails from "./pages/KanbanDetails";
 
 const AppRoutes = () => {
   const [auth, setAuth] = useAuth();
@@ -72,13 +74,20 @@ const AppRoutes = () => {
         <Route index element={<Documents />} />
         <Route path="/documents/:id" element={<Documents />} />
       </Route>
+      <Route
+        path="/kanban"
+        element={<Authenticated element={<DashboardLayout />} />}
+      >
+        <Route index element={<Kanban />} />
+        <Route path="/kanban/:kanbanId" element={<KanbanDetails />} />
+      </Route>
       <Route path="*" element={<PageNotFound />} />
       <Route path="/forgot-password" element={<ForgotPassword />}></Route>
       <Route
         path="/reset_password/:id/:token"
         element={<ResetPassword />}
       ></Route>
-      <Route path="/published/page/:id" element={<Published/>}/>
+      <Route path="/published/page/:id" element={<Published />} />
       <Route path="/register" element={<Register />} />
       <Route path="/login" element={<Login />} />
     </Routes>

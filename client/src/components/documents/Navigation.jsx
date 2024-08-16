@@ -11,6 +11,7 @@ import {
   Trash,
   MoreHorizontal,
   Home,
+  Kanban,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useMediaQuery } from "@uidotdev/usehooks";
@@ -59,7 +60,6 @@ const Navigation = ({ user }) => {
   const dispatch = useDispatch();
   const { privatePages } = useSelector((state) => state.PrivatePageReducer);
 
-  
   useEffect(() => {
     dispatch(getPrivatePages());
     dispatch(getTeamSpaces());
@@ -223,6 +223,13 @@ const Navigation = ({ user }) => {
               <Home className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
             }
             onClick={() => navigate("/documents")}
+          />
+          <Item
+            onClick={() => navigate("/kanban")}
+            label="Kanban"
+            Icon={
+              <Kanban className="shrink-0 h-[18px] w-[18px] mr-2 text-muted-foreground" />
+            }
           />
           <Item
             label="Settings"

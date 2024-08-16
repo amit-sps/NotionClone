@@ -247,7 +247,6 @@ export const loginControllerForGoogle = async (req, res) => {
           .select("-createdAt -updatedAt -__v -password")
       : null;
 
-    console.log("User after google login: ", user);
     if (!user) {
       return res.status(404).json({
         success: false,
