@@ -133,8 +133,9 @@ export const createKanbanTask = async (req, res) => {
       kanban: req?.body?.kanban,
       createdBy: req?.user?.id,
     });
-    await taskToSave.save();
-
+    console.log("inside the task ")
+    await KanbanTaskModel.create(taskToSave);
+    console.log("inside the taskToSave ",taskToSave)
     return res.status(201).json({
       success: true,
       message: "Kanban task created successfully.",
@@ -169,9 +170,29 @@ export const taskStatusList = async (req, res) => {
   }
 };
 
-export const getTaskListByGroup = async (req,res) => {
+export const getTaskListByGroup = async (req, res) => {
   try {
-    
+    const { groupId } = req.params;
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: "groupId is required.",
+      });
+    }
+    const tasks = await KanbanTaskModel.find({ group: groupId });
+    const tasksByStatus = tasks.reduce((acc, task) => {
+      const status = task.status;
+      if (!acc[status]) {
+        acc[status] = [];
+      }
+      acc[status].push(task);
+      return acc;
+    }, {});
+    return res.status(201).json({
+      success: true,
+      message: "Kanban task by status fetch successfully.",
+      data: tasksByStatus,
+    });
   } catch (error) {
     console.error("Error to fetch Kanban task status:", error);
 
@@ -181,4 +202,6 @@ export const getTaskListByGroup = async (req,res) => {
       error: error.message,
     });
   }
-}
+};
+
+
