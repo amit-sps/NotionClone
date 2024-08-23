@@ -115,6 +115,7 @@ function KanbanDetails() {
   };
 
   useEffect(() => {
+    scrollTo({top:0})
     getTaskStatus();
     getKanbanBoardById(kanbanId);
   }, [kanbanId]);
