@@ -21,8 +21,7 @@ router.post("/group", requireSignIn, createKanbanGroup)
        .get("/group/:kanbanId", requireSignIn, getKanbanGroups);
 
 router.post("/task", requireSignIn, createKanbanTask)
-.get("/task/:groupId", requireSignIn, getTaskListByGroup);
+router.get("/task/:groupId", requireSignIn, getTaskListByGroup);
 
 router.get("/task/status/list", requireSignIn, taskStatusList)
-
 export default router;
