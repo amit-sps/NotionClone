@@ -7,7 +7,9 @@ import {
   getKanbanGroups,
   createKanbanTask,
   taskStatusList,
-  getTaskListByGroup
+  getTaskListByGroup,
+  deleteGroupTask,
+  deleteTask
 } from "../controllers/kanban.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
 const router = express.Router();
@@ -23,5 +25,11 @@ router.post("/group", requireSignIn, createKanbanGroup)
 router.post("/task", requireSignIn, createKanbanTask)
 router.get("/task/:groupId", requireSignIn, getTaskListByGroup);
 
-router.get("/task/status/list", requireSignIn, taskStatusList)
+router.get("/task/status/list", requireSignIn, taskStatusList);
+
+router.delete("/task/:taskId",requireSignIn,deleteTask);
+router.delete("/group/:groupId",requireSignIn,deleteGroupTask);
+
+router.put("/task/:taskId",requireSignIn,deleteGroupTask);
+
 export default router;

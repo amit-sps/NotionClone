@@ -133,9 +133,9 @@ export const createKanbanTask = async (req, res) => {
       kanban: req?.body?.kanban,
       createdBy: req?.user?.id,
     });
-    console.log("inside the task ")
+    console.log("inside the task ");
     await KanbanTaskModel.create(taskToSave);
-    console.log("inside the taskToSave ",taskToSave)
+    console.log("inside the taskToSave ", taskToSave);
     return res.status(201).json({
       success: true,
       message: "Kanban task created successfully.",
@@ -204,4 +204,110 @@ export const getTaskListByGroup = async (req, res) => {
   }
 };
 
+export const deleteTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    if (!taskId) {
+      return res.status(400).json({
+        success: false,
+        message: "taskId is required.",
+      });
+    }
+    const task = await KanbanTaskModel.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "task not found.",
+      });
+    }
 
+    await KanbanTaskModel.findByIdAndDelete({_id:taskId});
+    return res.status(201).json({
+      success: true,
+      message: "Kanban task Deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error to fetch Kanban task status:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete Kanban task .",
+      error: error.message,
+    });
+  }
+};
+
+export const deleteGroupTask = async (req, res) => {
+  try {
+    const { groupId } = req.params;
+
+    if (!groupId) {
+      return res.status(400).json({
+        success: false,
+        message: "groupId is required.",
+      });
+    }
+
+    const group = await kanbanGroupModel.findById(groupId);
+    if (!group) {
+      return res.status(404).json({
+        success: false,
+        message: "Group not found.",
+      });
+    }
+
+    await kanbanGroupModel.findByIdAndDelete(groupId);
+    await KanbanTaskModel.deleteMany({ group: groupId });
+
+    return res.status(200).json({
+      success: true,
+      message: "Kanban group and associated tasks deleted successfully.",
+    });
+  } catch (error) {
+    console.error("Error deleting Kanban group and tasks:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete Kanban group and tasks.",
+      error: error.message,
+    });
+  }
+};
+
+
+export const updateTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    if (!taskId) {
+      return res.status(400).json({
+        success: false,
+        message: "taskId is required.",
+      });
+    }
+    const task = await KanbanTaskModel.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "task not found.",
+      });
+    }
+    const updatedTask = await KanbanTaskModel.findByIdAndUpdate(
+      {_id:taskId},
+      { $set: { ...req.body } },
+      { new: true }
+    );
+    return res.status(201).json({
+      success: true,
+      message: "Kanban task Deleted successfully.",
+      data: updatedTask
+    });
+  } catch (error) {
+    console.error("Error to fetch Kanban task status:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete Kanban task .",
+      error: error.message,
+    });
+  }
+};
