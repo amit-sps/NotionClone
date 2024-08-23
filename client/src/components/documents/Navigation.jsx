@@ -33,6 +33,7 @@ import NewDocumentList from "../NewDocumentList";
 import { useDispatch, useSelector } from "react-redux";
 import { getTeamSpaces } from "@/redux/action/teamspace";
 import { getPrivatePages } from "@/redux/action/privatePage";
+import KanbanBoardList from "../KanbanBoardList";
 const Navigation = ({ user }) => {
   const { pathname } = useLocation();
   const {
@@ -376,41 +377,28 @@ const Navigation = ({ user }) => {
         </div>
         {/* <DocumentList /> */}
         <div className="max-h-[500px] overflow-hidden hover:overflow-y-scroll hover:border-b">
-          {/* {privateDocument?.length >= 1 ? (
-            <>
-              {privateDocument?.map((teamspace) => {
-                return (
-                  <>
-                    <div className="mt-2">
-                     <DocumentList
-                          parentDocumentId={teamspace._id}
-                          level={1}
-                          teamspaceId={teamspace._id}
-                        />
-
-                        <NewDocumentList/>
-                     
-                    </div>
-                  </>
-                );
-              })}
-            </>
-          ) : (
-            <p
-              style={{
-                paddingLeft: `12px`,
-              }}
-              className={cn(
-                "hidden text-sm font-medium text-muted-foreground/80",
-                !teamSpaces?.length && "block"
-              )}
-            >
-              No pages inside
-            </p>
-          )} */}
-
           <NewDocumentList />
         </div>
+
+        {/* Kanban Boards List */}
+
+        <div className="mt-4 ml-2">
+          <div className="group min-h-[27px] text-sm py-1 pr-3 w-full hover:bg-primary/5 flex items-center text-muted-foreground font-medium">
+            <span className="truncate">My Kanban Boards</span>
+            <div
+              role="button"
+              // onClick={onCreate}
+              className="opacity-0 group-hover:opacity-100 h-full ml-auto rounded-sm hover:bg-neutral-300 dark:hover:bg-neutral-600"
+            >
+              <Plus className="h-4 w-4 text-muted-foreground" />
+            </div>
+          </div>
+        </div>
+        {/* <DocumentList /> */}
+        <div className="max-h-[500px] overflow-hidden hover:overflow-y-scroll hover:border-b">
+          <KanbanBoardList />
+        </div>
+        {/* Kanban Boards List */}
 
         <Popover>
           <PopoverTrigger className="w-full mt-4">
