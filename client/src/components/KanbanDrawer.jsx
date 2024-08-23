@@ -26,21 +26,21 @@ const CloseIcon = () => (
 const KanbanDrawer = ({
   closeDrawer,
   isDrawerOpen,
-  users,
-  taskData,
   onUpdate,
+  selectedTask
 }) => {
   const editor = useBlockNote();
+  
   const { resolvedTheme } = useTheme();
 
   const titleRef = useRef(null);
   const assignedRef = useRef(null);
-  const [status, setStatus] = useState(taskData?.status || "Todo");
+  const [status, setStatus] = useState(selectedTask?.status);
   const [startDate, setStartDate] = useState(
-    taskData?.startDate ? moment(taskData.startDate) : null
+    selectedTask?.startDate ? moment(selectedTask.startDate) : null
   );
   const [endDate, setEndDate] = useState(
-    taskData?.endDate ? moment(taskData.endDate) : null
+    selectedTask?.endDate ? moment(selectedTask.endDate) : null
   );
 
   const handleAutoSave = () => {
@@ -103,7 +103,7 @@ const KanbanDrawer = ({
           className="text-3xl font-semibold dark:bg-transparent dark:text-white focus:outline-none p-1 rounded-lg border-none placeholder-gray-500 hover:bg-gray-800/20 transition-colors duration-200 ease-in-out"
           style={{ borderBottom: "1px solid transparent" }}
         >
-          {taskData?.title || "Untitled Task"}
+          {selectedTask?.title || "Untitled Task"}
         </div>
 
         {/* Task Status */}
@@ -113,7 +113,7 @@ const KanbanDrawer = ({
           </span>
           <Select
             className="w-32 dark:bg-transparent dark:text-white border-none shadow-none hover:border-none focus:ring-0 p-0"
-            value={status}
+            value={selectedTask?.status}
             onChange={handleStatusChange}
             dropdownStyle={{
               backgroundColor: resolvedTheme === "dark" ? "#1a1a1a" : "#fff",
@@ -135,7 +135,7 @@ const KanbanDrawer = ({
             mode="multiple"
             className="dark:bg-transparent dark:text-white border-none shadow-none hover:border-none focus:ring-0 p-0"
             placeholder="Select users"
-            defaultValue={taskData?.assigned || []}
+            defaultValue={[]}
             onChange={handleAssignedChange}
             dropdownStyle={{
               backgroundColor: resolvedTheme === "dark" ? "#1a1a1a" : "#fff",
