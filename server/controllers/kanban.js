@@ -273,3 +273,41 @@ export const deleteGroupTask = async (req, res) => {
     });
   }
 };
+
+
+export const updateTask = async (req, res) => {
+  try {
+    const { taskId } = req.params;
+    if (!taskId) {
+      return res.status(400).json({
+        success: false,
+        message: "taskId is required.",
+      });
+    }
+    const task = await KanbanTaskModel.findById(taskId);
+    if (!task) {
+      return res.status(404).json({
+        success: false,
+        message: "task not found.",
+      });
+    }
+    const updatedTask = await KanbanTaskModel.findByIdAndUpdate(
+      {_id:taskId},
+      { $set: { ...req.body } },
+      { new: true }
+    );
+    return res.status(201).json({
+      success: true,
+      message: "Kanban task Deleted successfully.",
+      data: updatedTask
+    });
+  } catch (error) {
+    console.error("Error to fetch Kanban task status:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to delete Kanban task .",
+      error: error.message,
+    });
+  }
+};
