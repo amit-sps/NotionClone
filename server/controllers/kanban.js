@@ -298,7 +298,7 @@ export const updateTask = async (req, res) => {
     );
     return res.status(201).json({
       success: true,
-      message: "Kanban task Deleted successfully.",
+      message: "Kanban task updated successfully.",
       data: updatedTask
     });
   } catch (error) {
@@ -306,7 +306,7 @@ export const updateTask = async (req, res) => {
 
     return res.status(500).json({
       success: false,
-      message: "Failed to delete Kanban task .",
+      message: "Failed to update Kanban task .",
       error: error.message,
     });
   }
