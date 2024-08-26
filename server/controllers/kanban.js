@@ -277,6 +277,7 @@ export const deleteGroupTask = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
+    console.log(req.body);
     const { taskId } = req.params;
     if (!taskId) {
       return res.status(400).json({

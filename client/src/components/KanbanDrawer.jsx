@@ -1,9 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import { Drawer, Select, DatePicker } from "antd";
 import { BlockNoteView, useBlockNote } from "@blocknote/react";
+import dynamic from "next/dynamic";
 import "@blocknote/react/style.css";
 import { useTheme } from "next-themes";
 import moment from "moment";
+import axios from "axios";
+
 
 const { Option } = Select;
 
@@ -26,12 +29,28 @@ const CloseIcon = () => (
 const KanbanDrawer = ({
   closeDrawer,
   isDrawerOpen,
-  onUpdate,
-  selectedTask
+  getTaskListByGroupId,
+  selectedTask,
 }) => {
-  const editor = useBlockNote();
-  
+
+  const [content, setContent] = useState("")
+
+  const changeContent  = async(value)=> {
+    setContent(JSON.stringify(value.topLevelBlocks, null, 2))
+   }
+
+   const Editor = useMemo(
+    () =>
+      dynamic(() => import("@/components/documents/editor"), { ssr: false }),
+    [selectedTask?.taskContent]
+  );
+
+  const editor = useBlockNote({
+    initialContent: selectedTask?.taskContent && JSON.parse(selectedTask?.taskContent || ""),
+    onEditorContentChange: changeContent
+  });
   const { resolvedTheme } = useTheme();
+  console.log(selectedTask)
 
   const titleRef = useRef(null);
   const assignedRef = useRef(null);
@@ -43,6 +62,54 @@ const KanbanDrawer = ({
     selectedTask?.endDate ? moment(selectedTask.endDate) : null
   );
 
+  useEffect(()=>{
+    setStatus(selectedTask?.status);
+    setStartDate(selectedTask?.startDate ? moment(selectedTask.startDate) : null)
+    setEndDate(selectedTask?.endDate ? moment(selectedTask.endDate) : null)
+
+  }, [selectedTask])
+
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      const later = () => {
+        clearTimeout(timeout);
+        func(...args);
+      };
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+    };
+  };
+
+
+
+  const callUpdateAPI = (values) => {
+    axios
+      .put(
+        `http://localhost:3851/api/v1/kanban/task/${selectedTask?._id}`,
+        values,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Cookie:
+              "connect.sid=s%3AqVXEUqJF2VEM-4K300V7CAiApctCb0AB.sC%2FnZad4mIc2w%2FEC8415c7nrC18PUuLZplWz3K5GtIo",
+          },
+        }
+      )
+      .then(async (response) => {
+        console.log("API called successfully:", response.data);
+        await getTaskListByGroupId(response?.data?.data?.group);
+      })
+      .catch((error) => {
+        console.error("API call error:", error);
+      });
+  };
+
+  // Debounced API call
+  const debouncedCallAPI = useCallback(debounce(callUpdateAPI, 500), [
+    selectedTask?._id,
+  ]);
+
   const handleAutoSave = () => {
     const values = {
       title: titleRef.current?.innerText || "",
@@ -50,9 +117,11 @@ const KanbanDrawer = ({
       assigned: assignedRef.current || [],
       startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
       endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
-      taskContent: editor.getValue(),
+      taskContent: content,
+      group: selectedTask?.group || "",
+      kanban: selectedTask?.kanban || "",
     };
-    onUpdate(values);
+    debouncedCallAPI(values);
   };
 
   useEffect(() => {
@@ -63,7 +132,11 @@ const KanbanDrawer = ({
       if (titleRef.current)
         titleRef.current.removeEventListener("input", handleAutoSave);
     };
-  }, [status, startDate, endDate]);
+  }, [status, startDate, endDate, editor.topLevelBlocks]);
+
+  useEffect(() => {
+    handleAutoSave();
+  }, [ status, startDate, endDate, content]);
 
   const handleStatusChange = (value) => {
     setStatus(value);
@@ -92,7 +165,7 @@ const KanbanDrawer = ({
       open={isDrawerOpen}
       width={600}
       className="dark:bg-gray-900 dark:text-white p-0 overflow-auto"
-      closeIcon={<CloseIcon />} // Add close icon here
+      closeIcon={<CloseIcon />}
     >
       <div className="flex flex-col space-y-6 h-full">
         {/* Task Title */}
@@ -113,7 +186,7 @@ const KanbanDrawer = ({
           </span>
           <Select
             className="w-32 dark:bg-transparent dark:text-white border-none shadow-none hover:border-none focus:ring-0 p-0"
-            value={selectedTask?.status}
+            value={status}
             onChange={handleStatusChange}
             dropdownStyle={{
               backgroundColor: resolvedTheme === "dark" ? "#1a1a1a" : "#fff",
@@ -186,12 +259,8 @@ const KanbanDrawer = ({
 
         {/* Task Content Editor */}
         <div className="flex-grow overflow-hidden mt-6">
-          <div className="dark:bg-transparent dark:text-white border-none rounded-lg p-4 h-full overflow-auto">
-            <BlockNoteView
-              editor={editor}
-              className="h-full"
-              theme={resolvedTheme === "dark" ? "dark" : "light"}
-            />
+          <div className="dark:bg-transparent dark:text-white border-none rounded-lg p-4 h-full overflow-y-auto">
+          <Editor initialContent={selectedTask?.taskContent} editable={true} onChange={setContent}/>
           </div>
         </div>
       </div>
