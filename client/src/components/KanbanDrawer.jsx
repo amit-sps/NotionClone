@@ -1,12 +1,17 @@
-import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+  useCallback,
+  useMemo,
+} from "react";
 import { Drawer, Select, DatePicker } from "antd";
-import { BlockNoteView, useBlockNote } from "@blocknote/react";
 import dynamic from "next/dynamic";
 import "@blocknote/react/style.css";
 import { useTheme } from "next-themes";
 import moment from "moment";
 import axios from "axios";
-
+const token = localStorage.getItem("accessToken");
 
 const { Option } = Select;
 
@@ -32,25 +37,17 @@ const KanbanDrawer = ({
   getTaskListByGroupId,
   selectedTask,
 }) => {
+  const [content, setContent] = useState("");
+  const [contentToSave, setContentToSave] = useState("");
+  const [users, setUsers] = useState([]);
 
-  const [content, setContent] = useState("")
-
-  const changeContent  = async(value)=> {
-    setContent(JSON.stringify(value.topLevelBlocks, null, 2))
-   }
-
-   const Editor = useMemo(
+  const Editor = useMemo(
     () =>
       dynamic(() => import("@/components/documents/editor"), { ssr: false }),
-    [selectedTask?.taskContent]
+    [content]
   );
 
-  const editor = useBlockNote({
-    initialContent: selectedTask?.taskContent && JSON.parse(selectedTask?.taskContent || ""),
-    onEditorContentChange: changeContent
-  });
   const { resolvedTheme } = useTheme();
-  console.log(selectedTask)
 
   const titleRef = useRef(null);
   const assignedRef = useRef(null);
@@ -61,13 +58,6 @@ const KanbanDrawer = ({
   const [endDate, setEndDate] = useState(
     selectedTask?.endDate ? moment(selectedTask.endDate) : null
   );
-
-  useEffect(()=>{
-    setStatus(selectedTask?.status);
-    setStartDate(selectedTask?.startDate ? moment(selectedTask.startDate) : null)
-    setEndDate(selectedTask?.endDate ? moment(selectedTask.endDate) : null)
-
-  }, [selectedTask])
 
   const debounce = (func, wait) => {
     let timeout;
@@ -81,7 +71,16 @@ const KanbanDrawer = ({
     };
   };
 
-
+  const getUsers = async () => {
+    try {
+      const { data } = await axios("http://localhost:3851/api/v1/auth/users", {
+        headers: { Authorization: token },
+      });
+      setUsers(data?.data || []);
+    } catch (error) {
+      setUsers([]);
+    }
+  };
 
   const callUpdateAPI = (values) => {
     axios
@@ -91,13 +90,13 @@ const KanbanDrawer = ({
         {
           headers: {
             "Content-Type": "application/json",
-            Cookie:
-              "connect.sid=s%3AqVXEUqJF2VEM-4K300V7CAiApctCb0AB.sC%2FnZad4mIc2w%2FEC8415c7nrC18PUuLZplWz3K5GtIo",
+            Authorization: token,
           },
         }
       )
       .then(async (response) => {
         console.log("API called successfully:", response.data);
+
         await getTaskListByGroupId(response?.data?.data?.group);
       })
       .catch((error) => {
@@ -117,12 +116,27 @@ const KanbanDrawer = ({
       assigned: assignedRef.current || [],
       startDate: startDate ? startDate.format("YYYY-MM-DD") : "",
       endDate: endDate ? endDate.format("YYYY-MM-DD") : "",
-      taskContent: content,
+      taskContent: contentToSave,
       group: selectedTask?.group || "",
       kanban: selectedTask?.kanban || "",
     };
     debouncedCallAPI(values);
   };
+
+  useEffect(() => {
+    getUsers();
+  }, []);
+
+  useEffect(() => {
+    setContent("");
+    setContent(selectedTask?.taskContent || "");
+    setContentToSave(selectedTask?.taskContent || "");
+    setStatus(selectedTask?.status);
+    setStartDate(
+      selectedTask?.startDate ? moment(selectedTask.startDate) : null
+    );
+    setEndDate(selectedTask?.endDate ? moment(selectedTask.endDate) : null);
+  }, [selectedTask]);
 
   useEffect(() => {
     if (titleRef.current)
@@ -132,11 +146,13 @@ const KanbanDrawer = ({
       if (titleRef.current)
         titleRef.current.removeEventListener("input", handleAutoSave);
     };
-  }, [status, startDate, endDate, editor.topLevelBlocks]);
+  }, [status, startDate, endDate]);
 
   useEffect(() => {
-    handleAutoSave();
-  }, [ status, startDate, endDate, content]);
+    if (selectedTask?._id) {
+      handleAutoSave();
+    }
+  }, [status, startDate, endDate, contentToSave]);
 
   const handleStatusChange = (value) => {
     setStatus(value);
@@ -156,6 +172,10 @@ const KanbanDrawer = ({
   const handleEndDateChange = (date) => {
     setEndDate(date);
     handleAutoSave();
+  };
+
+  const onChange = (content) => {
+    setContentToSave(content);
   };
 
   return (
@@ -208,17 +228,17 @@ const KanbanDrawer = ({
             mode="multiple"
             className="dark:bg-transparent dark:text-white border-none shadow-none hover:border-none focus:ring-0 p-0"
             placeholder="Select users"
-            defaultValue={[]}
+            defaultValue={selectedTask?.assigned.map((user)=>({key: user?._id, value: user?.name}))}
             onChange={handleAssignedChange}
             dropdownStyle={{
               backgroundColor: resolvedTheme === "dark" ? "#1a1a1a" : "#fff",
             }}
           >
-            {/* {users.map((user) => (
+            {users.map((user) => (
               <Option key={user._id} value={user._id}>
                 {user.name}
               </Option>
-            ))} */}
+            ))}
           </Select>
         </div>
 
@@ -260,7 +280,11 @@ const KanbanDrawer = ({
         {/* Task Content Editor */}
         <div className="flex-grow overflow-hidden mt-6">
           <div className="dark:bg-transparent dark:text-white border-none rounded-lg p-4 h-full overflow-y-auto">
-          <Editor initialContent={selectedTask?.taskContent} editable={true} onChange={setContent}/>
+            <Editor
+              initialContent={content}
+              editable={true}
+              onChange={onChange}
+            />
           </div>
         </div>
       </div>

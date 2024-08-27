@@ -31,6 +31,6 @@ router.get("/task/status/list", requireSignIn, taskStatusList);
 router.delete("/task/:taskId",requireSignIn,deleteTask);
 router.delete("/group/:groupId",requireSignIn,deleteGroupTask);
 
-router.put("/task/:taskId",updateTask);
+router.put("/task/:taskId",requireSignIn, updateTask);
 
 export default router;

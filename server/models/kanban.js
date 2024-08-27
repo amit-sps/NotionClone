@@ -54,7 +54,7 @@ const kanbanTaskSchema = new mongoose.Schema(
     assigned: [
       {
         type: mongoose.Types.ObjectId,
-        ref: "user",
+        ref: "users",
         required: true,
       },
     ],

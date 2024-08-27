@@ -8,6 +8,7 @@ import {
   changedPasswordController,
   logoutUser,
   refreshAccessToken,
+  getAllRegisteredUsers
 } from "../controllers/authController.js";
 import { requireSignIn } from "../middlewares/authMiddleware.js";
 import { registerValidation, loginValidation } from "../validation/auth.validation.js";
@@ -47,4 +48,6 @@ router.get("/user-auth", requireSignIn, (req, res) => {
 
 // Refresh token route
 router.post("/refresh-token", refreshAccessToken);
+
+router.get("/users", requireSignIn, getAllRegisteredUsers)
 export default router;

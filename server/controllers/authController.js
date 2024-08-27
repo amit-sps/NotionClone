@@ -504,3 +504,23 @@ export const changedPasswordController = async (req, res) => {
     });
   }
 };
+
+export const getAllRegisteredUsers = async (req, res) => {
+  try {
+    const users = await userModel
+      .find({ _id: { $ne: req.user?.id } })
+      .select("-password");
+    return res.status(200).json({
+      success: true,
+      message: "Users list fetched successfully.",
+      data: users,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "An error occurred while changing the password.",
+      error: error.message,
+    });
+  }
+};
